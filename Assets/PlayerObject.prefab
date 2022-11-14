@@ -120,16 +120,72 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2553607109572742945}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: -0.4, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 4358197499894809664}
   - {fileID: 1220789947211330500}
+  m_Father: {fileID: 6284948456605174322}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2747818715680115049
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6284948456605174322}
+  - component: {fileID: 4439184997666043507}
+  m_Layer: 0
+  m_Name: PlayerShip
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6284948456605174322
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2747818715680115049}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.4, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 7283598454976311512}
   m_Father: {fileID: 5087048545812467465}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4439184997666043507
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2747818715680115049}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a899a37fdbc5d2c44af967b3e228614d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  desiredSpeed: 0
+  desiredHeading: 0
+  desiredSpeedChangeRate: 5
+  desiredHeadingChangeRate: 5
+  position: {x: 0, y: 0, z: 0}
+  speed: 0
+  acceleration: 0.5
+  minSpeed: -2
+  maxSpeed: 2
+  heading: 0
+  angularVelocity: 0.6
 --- !u!1 &3882385524392852243
 GameObject:
   m_ObjectHideFlags: 0
@@ -139,10 +195,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5087048545812467465}
-  - component: {fileID: 6174259422994516185}
+  - component: {fileID: 2765795260942143011}
   - component: {fileID: -1941750942118506370}
   m_Layer: 0
-  m_Name: Ship
+  m_Name: PlayerObject
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -160,11 +216,11 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 7283598454976311512}
+  - {fileID: 6284948456605174322}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &6174259422994516185
+--- !u!114 &2765795260942143011
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -173,20 +229,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 3882385524392852243}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a899a37fdbc5d2c44af967b3e228614d, type: 3}
+  m_Script: {fileID: 11500000, guid: 7c52ec4b37ee7234087fed8fa161166a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  desiredSpeed: 0
-  desiredHeading: 0
-  desiredSpeedChangeRate: 5
-  desiredHeadingChangeRate: 5
-  position: {x: 0, y: 0, z: 0}
-  speed: 0
-  acceleration: 0.5
-  minSpeed: -2
-  maxSpeed: 2
-  heading: 0
-  angularVelocity: 0.6
+  teamID: -1
+  username: 
 --- !u!114 &-1941750942118506370
 MonoBehaviour:
   m_ObjectHideFlags: 0

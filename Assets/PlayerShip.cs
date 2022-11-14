@@ -32,12 +32,6 @@ public class PlayerShip : NetworkBehaviour
     {
         base.OnNetworkSpawn();
         GameMgr.instance.shipDict[OwnerClientId] = this;
-        EventMgr.instance.onPlayerJoin.Invoke();
-
-        if (IsOwner)
-        {
-            GameMgr.instance.userID = OwnerClientId;
-        }
     }
 
     public override void OnNetworkDespawn()

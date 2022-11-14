@@ -11,6 +11,7 @@ public class GameMgr : NetworkBehaviour
     public static GameMgr instance;
 
     public ulong userID;
+    public int teamID;
 
     public GameObject pref;
 
