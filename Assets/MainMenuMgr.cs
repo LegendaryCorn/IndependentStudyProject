@@ -16,6 +16,10 @@ public class MainMenuMgr : MonoBehaviour
 
     public UnityTransport transport;
 
+    int teamNum = -1;
+    public List<Button> hostTeamButtons;
+    public List<Button> clientTeamButtons;
+
     public GameObject menuCanvas;
 
     // Start is called before the first frame update
@@ -34,6 +38,7 @@ public class MainMenuMgr : MonoBehaviour
     {
         try
         {
+            float aaa = 1 / (teamNum + 1); // Fix this later
             transport.ConnectionData.Address = hostIPInput.text;
             transport.ConnectionData.Port = ushort.Parse(hostPortInput.text);
             NetworkManager.Singleton.StartHost();
@@ -49,6 +54,7 @@ public class MainMenuMgr : MonoBehaviour
     {
         try
         {
+            float aaa = 1 / (teamNum + 1); // Fix this later
             transport.ConnectionData.Address = clientIPInput.text;
             transport.ConnectionData.Port = ushort.Parse(clientPortInput.text);
             NetworkManager.Singleton.StartClient();
@@ -60,6 +66,24 @@ public class MainMenuMgr : MonoBehaviour
         }
     }
 
+    public void SwapTeam(int team)
+    {
+        teamNum = team;
+
+        for(int i = 0; i < hostTeamButtons.Count; i++)
+        {
+            if(team == i)
+            {
+                hostTeamButtons[i].interactable = false;
+                clientTeamButtons[i].interactable = false;
+            }
+            else
+            {
+                hostTeamButtons[i].interactable = true;
+                clientTeamButtons[i].interactable = true;
+            }
+        }
+    }
     public void QuitGame()
     {
         Application.Quit();
