@@ -41,7 +41,7 @@ public class MainMenuMgr : MonoBehaviour
             float aaa = 1 / (teamNum + 1); // Fix this later
             transport.ConnectionData.Address = hostIPInput.text;
             transport.ConnectionData.Port = ushort.Parse(hostPortInput.text);
-            GameMgr.instance.teamID = teamNum;
+            PlayerMgr.instance.teamID = teamNum;
             NetworkManager.Singleton.StartHost();
             menuCanvas.SetActive(false);
         }
@@ -58,7 +58,7 @@ public class MainMenuMgr : MonoBehaviour
             float aaa = 1 / (teamNum + 1); // Fix this later
             transport.ConnectionData.Address = clientIPInput.text;
             transport.ConnectionData.Port = ushort.Parse(clientPortInput.text);
-            GameMgr.instance.teamID = teamNum;
+            PlayerMgr.instance.teamID = teamNum;
             NetworkManager.Singleton.StartClient();
             menuCanvas.SetActive(false);
         }

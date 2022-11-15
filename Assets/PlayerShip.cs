@@ -13,6 +13,8 @@ public class PlayerShip : NetworkBehaviour
     private NetworkVariable<float> _speed = new NetworkVariable<float>(writePerm: NetworkVariableWritePermission.Server);
     private NetworkVariable<float> _heading = new NetworkVariable<float>(writePerm: NetworkVariableWritePermission.Server);
 
+    public NetworkVariable<int> _shipTeam = new NetworkVariable<int>(writePerm: NetworkVariableWritePermission.Server);
+
     public float desiredSpeed;
     public float desiredHeading;
 
@@ -28,23 +30,29 @@ public class PlayerShip : NetworkBehaviour
     public float heading;
     public float angularVelocity;
 
+    public MeshRenderer shipMarker;
+
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
-        GameMgr.instance.shipDict[OwnerClientId] = this;
+        if (!IsServer)
+        {
+            ShipMgr.instance.shipList.Add(this);
+            shipMarker.material = ShipMgr.instance.teamMaterials[_shipTeam.Value];
+        }
     }
 
     public override void OnNetworkDespawn()
     {
-        GameMgr.instance.shipDict.Remove(OwnerClientId);
-        EventMgr.instance.onPlayerLeave.Invoke();
+        //GameMgr.instance.shipDict.Remove(OwnerClientId);
+        //EventMgr.instance.onPlayerLeave.Invoke();
         base.OnNetworkDespawn();
     }
 
 
     void Start()
     {
-        
+
     }
 
     private void Update()
@@ -113,5 +121,18 @@ public class PlayerShip : NetworkBehaviour
             speed = _speed.Value;
             heading = _heading.Value;
         }
+    }
+
+    public void SetTeam(int t)
+    {
+        _shipTeam.Value = t;
+        shipMarker.material = ShipMgr.instance.teamMaterials[t];
+    }
+
+    public void Teleport(Vector3 newPos)
+    {
+        _position.Value = newPos;
+        transform.position = newPos;
+        position = newPos;
     }
 }

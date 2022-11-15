@@ -6,22 +6,34 @@ using Unity.Netcode;
 public class Player : NetworkBehaviour
 {
     private NetworkVariable<int> _teamID = new NetworkVariable<int>(writePerm: NetworkVariableWritePermission.Owner);
+    private NetworkVariable<bool> _hasSpawned = new NetworkVariable<bool>(writePerm: NetworkVariableWritePermission.Owner);
+
+    public NetworkVariable<Vector3> _mousePlanePos = new NetworkVariable<Vector3>(writePerm: NetworkVariableWritePermission.Owner, readPerm: NetworkVariableReadPermission.Owner);
+    public NetworkVariable<bool> _spawnRequest = new NetworkVariable<bool>(writePerm: NetworkVariableWritePermission.Owner, readPerm: NetworkVariableReadPermission.Owner);
 
     public int teamID;
     public string username;
-
-    bool initialized = false;
+    private bool hasSpawned;
 
     public override void OnNetworkSpawn()
     {
+        base.OnNetworkSpawn();
+
         if (IsOwner)
         {
-            GameMgr.instance.userID = OwnerClientId;
-            _teamID.Value = GameMgr.instance.teamID;
+            PlayerMgr.instance.userID = OwnerClientId;
+            _teamID.Value = PlayerMgr.instance.teamID;
+            _hasSpawned.Value = true;
         }
 
-        base.OnNetworkSpawn();
+        PlayerMgr.instance.playerDict[OwnerClientId] = this;
         EventMgr.instance.onPlayerJoin.Invoke();
+    }
+
+    public override void OnNetworkDespawn()
+    {
+        PlayerMgr.instance.playerDict.Remove(OwnerClientId);
+        base.OnNetworkDespawn();
     }
 
     // Start is called before the first frame update
@@ -33,6 +45,31 @@ public class Player : NetworkBehaviour
     // Update is called once per frame
     void Update()
     {
+        if(!hasSpawned && _hasSpawned.Value)
+        {
+            teamID = _teamID.Value;
+            hasSpawned = true;
+        }
+        if (IsServer)
+        {
+            HandleRequests();
+        }
+    }
 
+    private void FixedUpdate()
+    {
+
+    }
+
+
+    bool spawnReqPrev = false;
+
+    void HandleRequests()
+    {
+        if (_spawnRequest.Value && !spawnReqPrev)
+        {
+            ShipMgr.instance.SpawnNewShip(teamID, _mousePlanePos.Value);
+        }
+        spawnReqPrev = _spawnRequest.Value;
     }
 }
