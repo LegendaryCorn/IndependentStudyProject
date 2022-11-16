@@ -9,8 +9,6 @@ public class ControlMgr : NetworkBehaviour
     public float camRotAdjustRate;
     public float camZoomAdjustRate;
 
-    private bool spawnButtonUp = true;
-
     // Start is called before the first frame update
     void Start()
     {
@@ -32,27 +30,15 @@ public class ControlMgr : NetworkBehaviour
     {
         Player yourPlayer = PlayerMgr.instance.GetClientPlayer();
 
-        if (Input.GetAxisRaw("Spawn") != 0 && spawnButtonUp)
-        {
-            yourPlayer._spawnRequest.Value = true;
-            spawnButtonUp = false;
-        }
-        else if (Input.GetAxisRaw("Spawn") == 0 && !spawnButtonUp)
-        {
-            yourPlayer._spawnRequest.Value = false;
-            spawnButtonUp = true;
-        }
+        yourPlayer._spawnRequest.Value = (Input.GetAxisRaw("Spawn") != 0);
+        yourPlayer._selectRequest.Value = (Input.GetAxisRaw("Selection") != 0);
+        yourPlayer._moveRequest.Value = (Input.GetAxisRaw("Movement") != 0);
+
 
         Vector3 mouseToWater = Vector3.zero;
         Ray r = Camera.main.ScreenPointToRay(Input.mousePosition);
-        LayerMask m = LayerMask.GetMask("Water");
-        RaycastHit hit;
-        if(Physics.Raycast(r, out hit, Mathf.Infinity, m))
-        {
-            mouseToWater = hit.point;
-        }
+        yourPlayer._mouseRay.Value = r;
 
-        yourPlayer._mousePlanePos.Value = mouseToWater;
         /*
         PlayerShip pShip = GameMgr.instance.shipDict[GameMgr.instance.userID];
         if (Input.GetAxisRaw("Vertical") != 0)

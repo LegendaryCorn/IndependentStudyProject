@@ -30,6 +30,9 @@ public class PlayerShip : NetworkBehaviour
     public float heading;
     public float angularVelocity;
 
+    public ulong controlledPlayer;
+    public List<Vector3> desiredPositionList;
+
     public MeshRenderer shipMarker;
 
     public override void OnNetworkSpawn()

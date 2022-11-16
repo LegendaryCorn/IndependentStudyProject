@@ -8,12 +8,17 @@ public class Player : NetworkBehaviour
     private NetworkVariable<int> _teamID = new NetworkVariable<int>(writePerm: NetworkVariableWritePermission.Owner);
     private NetworkVariable<bool> _hasSpawned = new NetworkVariable<bool>(writePerm: NetworkVariableWritePermission.Owner);
 
-    public NetworkVariable<Vector3> _mousePlanePos = new NetworkVariable<Vector3>(writePerm: NetworkVariableWritePermission.Owner, readPerm: NetworkVariableReadPermission.Owner);
     public NetworkVariable<bool> _spawnRequest = new NetworkVariable<bool>(writePerm: NetworkVariableWritePermission.Owner, readPerm: NetworkVariableReadPermission.Owner);
+    public NetworkVariable<bool> _selectRequest = new NetworkVariable<bool>(writePerm: NetworkVariableWritePermission.Owner, readPerm: NetworkVariableReadPermission.Owner);
+    public NetworkVariable<bool> _moveRequest = new NetworkVariable<bool>(writePerm: NetworkVariableWritePermission.Owner, readPerm: NetworkVariableReadPermission.Owner);
+    
+    public NetworkVariable<Ray> _mouseRay = new NetworkVariable<Ray>(writePerm: NetworkVariableWritePermission.Owner, readPerm: NetworkVariableReadPermission.Owner);
 
     public int teamID;
     public string username;
     private bool hasSpawned;
+
+    private List<PlayerShip> selectedShipList = new List<PlayerShip>();
 
     public override void OnNetworkSpawn()
     {
@@ -63,13 +68,61 @@ public class Player : NetworkBehaviour
 
 
     bool spawnReqPrev = false;
+    bool selectReqPrev = false;
+    bool moveReqPrev = false;
 
     void HandleRequests()
     {
-        if (_spawnRequest.Value && !spawnReqPrev)
+
+        LayerMask waterMask = LayerMask.GetMask("Water");
+        RaycastHit hit;
+        Vector3 mouseToWater = Vector3.zero;
+        if (Physics.Raycast(_mouseRay.Value, out hit, Mathf.Infinity, waterMask))
         {
-            ShipMgr.instance.SpawnNewShip(teamID, _mousePlanePos.Value);
+            mouseToWater = hit.point;
+        }
+
+        LayerMask shipMask = LayerMask.GetMask("Ship");
+        PlayerShip mouseToShip = null;
+        if (Physics.Raycast(_mouseRay.Value, out hit, Mathf.Infinity, shipMask))
+        {
+            mouseToShip = hit.collider.gameObject.GetComponent<PlayerShip>();
+        }
+
+        if (_spawnRequest.Value && !spawnReqPrev && !mouseToWater.Equals(Vector3.zero))
+        {
+            ShipMgr.instance.SpawnNewShip(teamID, mouseToWater);
         }
         spawnReqPrev = _spawnRequest.Value;
+
+        if(_selectRequest.Value && !selectReqPrev)
+        {
+            selectedShipList.Clear();
+            if (mouseToShip != null)
+            {
+                selectedShipList.Add(mouseToShip);
+                print(mouseToShip._shipTeam.Value);
+            }
+            else
+            {
+                print("deselect");
+            }
+        }
+        selectReqPrev = _selectRequest.Value;
+
+        if(_moveRequest.Value && !moveReqPrev)
+        {
+            if(!mouseToWater.Equals(Vector3.zero))
+            {
+                foreach(PlayerShip ship in selectedShipList)
+                {
+                    ship.desiredPositionList.Clear();
+                    ship.desiredPositionList.Add(mouseToWater);
+                    //ship.controlledPlayer = PlayerMgr.instance.playerDict.ge
+                }
+            }
+        }
+        moveReqPrev = _moveRequest.Value;
+        
     }
 }
