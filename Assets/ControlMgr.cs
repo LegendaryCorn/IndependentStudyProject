@@ -33,33 +33,12 @@ public class ControlMgr : NetworkBehaviour
         yourPlayer._spawnRequest.Value = (Input.GetAxisRaw("Spawn") != 0);
         yourPlayer._selectRequest.Value = (Input.GetAxisRaw("Selection") != 0);
         yourPlayer._moveRequest.Value = (Input.GetAxisRaw("Movement") != 0);
+        yourPlayer._lShiftRequest.Value = (Input.GetAxisRaw("LShift") != 0);
 
 
         Vector3 mouseToWater = Vector3.zero;
         Ray r = Camera.main.ScreenPointToRay(Input.mousePosition);
         yourPlayer._mouseRay.Value = r;
-
-        /*
-        PlayerShip pShip = GameMgr.instance.shipDict[GameMgr.instance.userID];
-        if (Input.GetAxisRaw("Vertical") != 0)
-        {
-            pShip.desiredSpeed = Mathf.Clamp(pShip.desiredSpeed + dt * pShip.desiredSpeedChangeRate * Input.GetAxisRaw("Vertical"), pShip.minSpeed, pShip.maxSpeed);
-            EventMgr.instance.onDesiredSpeedChanged.Invoke();
-        }
-        if (Input.GetAxisRaw("Horizontal") != 0)
-        {
-            pShip.desiredHeading += dt * pShip.desiredHeadingChangeRate * Input.GetAxisRaw("Horizontal");
-            if (pShip.desiredHeading < 0) pShip.desiredHeading += 2 * Mathf.PI;
-            if (pShip.desiredHeading >= 2 * Mathf.PI) pShip.desiredHeading -= 2 * Mathf.PI;
-            EventMgr.instance.onDesiredHeadingChanged.Invoke();
-        }
-        if (Input.GetAxisRaw("Jump") != 0)
-        {
-            pShip.desiredSpeed = 0;
-            EventMgr.instance.onDesiredSpeedChanged.Invoke();
-          
-        }
-        */
     }
 
     void DoCameraInputs(float dt)

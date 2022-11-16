@@ -11,7 +11,8 @@ public class Player : NetworkBehaviour
     public NetworkVariable<bool> _spawnRequest = new NetworkVariable<bool>(writePerm: NetworkVariableWritePermission.Owner, readPerm: NetworkVariableReadPermission.Owner);
     public NetworkVariable<bool> _selectRequest = new NetworkVariable<bool>(writePerm: NetworkVariableWritePermission.Owner, readPerm: NetworkVariableReadPermission.Owner);
     public NetworkVariable<bool> _moveRequest = new NetworkVariable<bool>(writePerm: NetworkVariableWritePermission.Owner, readPerm: NetworkVariableReadPermission.Owner);
-    
+    public NetworkVariable<bool> _lShiftRequest = new NetworkVariable<bool>(writePerm: NetworkVariableWritePermission.Owner, readPerm: NetworkVariableReadPermission.Owner);
+
     public NetworkVariable<Ray> _mouseRay = new NetworkVariable<Ray>(writePerm: NetworkVariableWritePermission.Owner, readPerm: NetworkVariableReadPermission.Owner);
 
     public int teamID;
@@ -97,15 +98,15 @@ public class Player : NetworkBehaviour
 
         if(_selectRequest.Value && !selectReqPrev)
         {
-            selectedShipList.Clear();
+            if (!_lShiftRequest.Value)
+            {
+                selectedShipList.Clear();
+            }
+
             if (mouseToShip != null)
             {
                 selectedShipList.Add(mouseToShip);
-                print(mouseToShip._shipTeam.Value);
-            }
-            else
-            {
-                print("deselect");
+
             }
         }
         selectReqPrev = _selectRequest.Value;
@@ -116,9 +117,15 @@ public class Player : NetworkBehaviour
             {
                 foreach(PlayerShip ship in selectedShipList)
                 {
-                    ship.desiredPositionList.Clear();
-                    ship.desiredPositionList.Add(mouseToWater);
-                    //ship.controlledPlayer = PlayerMgr.instance.playerDict.ge
+                    if (ship._shipTeam.Value == teamID)
+                    {
+                        if (!_lShiftRequest.Value)
+                        {
+                            ship.desiredPositionList.Clear();
+                        }
+                        ship.desiredPositionList.Add(mouseToWater);
+                        //ship.controlledPlayer = PlayerMgr.instance.playerDict.ge
+                    }
                 }
             }
         }

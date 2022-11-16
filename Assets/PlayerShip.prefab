@@ -187,11 +187,14 @@ MonoBehaviour:
   desiredHeadingChangeRate: 5
   position: {x: 0, y: -99999, z: 0}
   speed: 0
-  acceleration: 0.5
+  acceleration: 1
   minSpeed: -2
   maxSpeed: 2
   heading: 0
   angularVelocity: 0.6
+  minMagnitude: 0.1
+  controlledPlayer: 0
+  desiredPositionList: []
   shipMarker: {fileID: 7102632239673174502}
 --- !u!65 &3046672994611153893
 BoxCollider:

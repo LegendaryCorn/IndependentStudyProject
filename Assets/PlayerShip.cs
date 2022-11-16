@@ -6,8 +6,8 @@ using Unity.Netcode;
 public class PlayerShip : NetworkBehaviour
 {
 
-    private NetworkVariable<float> _desiredSpeed = new NetworkVariable<float>(writePerm: NetworkVariableWritePermission.Owner);
-    private NetworkVariable<float> _desiredHeading = new NetworkVariable<float>(writePerm: NetworkVariableWritePermission.Owner);
+    private NetworkVariable<float> _desiredSpeed = new NetworkVariable<float>(writePerm: NetworkVariableWritePermission.Server);
+    private NetworkVariable<float> _desiredHeading = new NetworkVariable<float>(writePerm: NetworkVariableWritePermission.Server);
 
     private NetworkVariable<Vector3> _position = new NetworkVariable<Vector3>(writePerm: NetworkVariableWritePermission.Server);
     private NetworkVariable<float> _speed = new NetworkVariable<float>(writePerm: NetworkVariableWritePermission.Server);
@@ -30,6 +30,7 @@ public class PlayerShip : NetworkBehaviour
     public float heading;
     public float angularVelocity;
 
+    public float minMagnitude;
     public ulong controlledPlayer;
     public List<Vector3> desiredPositionList;
 
@@ -67,7 +68,33 @@ public class PlayerShip : NetworkBehaviour
     void FixedUpdate()
     {
         float dt = Time.fixedDeltaTime;
+
+        CheckDesiredPosition(dt);
+        CalcDesiredSpeedHeading(dt);
         UpdatePositions(dt);
+    }
+
+    void CheckDesiredPosition(float dt)
+    {
+        if(desiredPositionList.Count > 0 && Vector3.SqrMagnitude(position - desiredPositionList[0]) < minMagnitude * minMagnitude)
+        {
+            desiredPositionList.RemoveAt(0);
+        }
+    }
+
+    void CalcDesiredSpeedHeading(float dt)
+    {
+        if (desiredPositionList.Count > 0)
+        {
+            desiredSpeed = maxSpeed;
+            Vector3 posDiff = desiredPositionList[0] - position;
+            desiredHeading = Mathf.Atan2(posDiff.x, posDiff.z);
+            desiredHeading += desiredHeading < 0 ? 2 * Mathf.PI : 0;
+        }
+        else
+        {
+            desiredSpeed = 0;
+        }
     }
 
     void DoPhysics(float dt)
