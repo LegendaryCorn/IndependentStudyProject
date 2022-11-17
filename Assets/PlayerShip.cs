@@ -14,6 +14,7 @@ public class PlayerShip : NetworkBehaviour
     private NetworkVariable<float> _heading = new NetworkVariable<float>(writePerm: NetworkVariableWritePermission.Server);
 
     public NetworkVariable<int> _shipTeam = new NetworkVariable<int>(writePerm: NetworkVariableWritePermission.Server);
+    public NetworkVariable<int> _shipID = new NetworkVariable<int>(writePerm: NetworkVariableWritePermission.Server);
 
     public float desiredSpeed;
     public float desiredHeading;
@@ -35,13 +36,15 @@ public class PlayerShip : NetworkBehaviour
     public List<Vector3> desiredPositionList;
 
     public MeshRenderer shipMarker;
+    public GameObject friendlyMarker;
+    public GameObject enemyMarker;
 
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
         if (!IsServer)
         {
-            ShipMgr.instance.shipList.Add(this);
+            ShipMgr.instance.shipDict[_shipID.Value] = this;
             shipMarker.material = ShipMgr.instance.teamMaterials[_shipTeam.Value];
         }
     }
@@ -64,6 +67,7 @@ public class PlayerShip : NetworkBehaviour
         float dt = Time.deltaTime;
         DoPhysics(dt);
     }
+
 
     void FixedUpdate()
     {
@@ -126,9 +130,11 @@ public class PlayerShip : NetworkBehaviour
         gameObject.transform.eulerAngles = new Vector3(0, Mathf.Rad2Deg * heading, 0);
     }
 
+    Vector3 prevPos;
     void UpdatePositions(float dt)
     {
-        if (IsOwner)
+        
+        if (IsServer)
         {
             _desiredSpeed.Value = desiredSpeed;
             _desiredHeading.Value = desiredHeading;
@@ -138,6 +144,7 @@ public class PlayerShip : NetworkBehaviour
             desiredSpeed = _desiredSpeed.Value;
             desiredHeading = _desiredHeading.Value;
         }
+        
 
         if (IsServer)
         {
@@ -152,6 +159,7 @@ public class PlayerShip : NetworkBehaviour
             heading = _heading.Value;
         }
     }
+
 
     public void SetTeam(int t)
     {

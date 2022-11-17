@@ -9,9 +9,11 @@ public class ShipMgr : MonoBehaviour
 
     public GameObject shipObject;
 
-    public List<PlayerShip> shipList;
+    public Dictionary<int, PlayerShip> shipDict;
 
     public List<Material> teamMaterials;
+
+    int shipIDSet = 0;
 
     private void Awake()
     {
@@ -23,6 +25,8 @@ public class ShipMgr : MonoBehaviour
         {
             instance = this;
         }
+
+        shipDict = new Dictionary<int, PlayerShip>();
     }
 
     // Start is called before the first frame update
@@ -43,8 +47,9 @@ public class ShipMgr : MonoBehaviour
         PlayerShip newPlayerShip = newShip.GetComponent<PlayerShip>();
         newPlayerShip.SetTeam(teamID);
         newPlayerShip.Teleport(spawnPos);
-        shipList.Add(newShip.GetComponent<PlayerShip>());
+        newPlayerShip._shipID.Value = shipIDSet;
+        shipDict[shipIDSet] = newShip.GetComponent<PlayerShip>();
+        shipIDSet++;
         newShip.GetComponent<NetworkObject>().Spawn();
-
     }
 }

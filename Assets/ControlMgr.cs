@@ -35,8 +35,6 @@ public class ControlMgr : NetworkBehaviour
         yourPlayer._moveRequest.Value = (Input.GetAxisRaw("Movement") != 0);
         yourPlayer._lShiftRequest.Value = (Input.GetAxisRaw("LShift") != 0);
 
-
-        Vector3 mouseToWater = Vector3.zero;
         Ray r = Camera.main.ScreenPointToRay(Input.mousePosition);
         yourPlayer._mouseRay.Value = r;
     }

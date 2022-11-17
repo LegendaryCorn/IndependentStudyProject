@@ -15,11 +15,11 @@ public class Player : NetworkBehaviour
 
     public NetworkVariable<Ray> _mouseRay = new NetworkVariable<Ray>(writePerm: NetworkVariableWritePermission.Owner, readPerm: NetworkVariableReadPermission.Owner);
 
+    public NetworkList<int> _selectedShipList;
+
     public int teamID;
     public string username;
     private bool hasSpawned;
-
-    private List<PlayerShip> selectedShipList = new List<PlayerShip>();
 
     public override void OnNetworkSpawn()
     {
@@ -31,7 +31,7 @@ public class Player : NetworkBehaviour
             _teamID.Value = PlayerMgr.instance.teamID;
             _hasSpawned.Value = true;
         }
-
+        
         PlayerMgr.instance.playerDict[OwnerClientId] = this;
         EventMgr.instance.onPlayerJoin.Invoke();
     }
@@ -43,9 +43,9 @@ public class Player : NetworkBehaviour
     }
 
     // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
-
+        _selectedShipList = new NetworkList<int>(writePerm: NetworkVariableWritePermission.Server, readPerm: NetworkVariableReadPermission.Owner);
     }
 
     // Update is called once per frame
@@ -59,6 +59,10 @@ public class Player : NetworkBehaviour
         if (IsServer)
         {
             HandleRequests();
+        }
+        if (IsOwner)
+        {
+            UpdateShipIndicators();
         }
     }
 
@@ -100,12 +104,12 @@ public class Player : NetworkBehaviour
         {
             if (!_lShiftRequest.Value)
             {
-                selectedShipList.Clear();
+                _selectedShipList.Clear();
             }
 
             if (mouseToShip != null)
             {
-                selectedShipList.Add(mouseToShip);
+                _selectedShipList.Add(mouseToShip._shipID.Value);
 
             }
         }
@@ -115,8 +119,9 @@ public class Player : NetworkBehaviour
         {
             if(!mouseToWater.Equals(Vector3.zero))
             {
-                foreach(PlayerShip ship in selectedShipList)
+                foreach(int s in _selectedShipList)
                 {
+                    PlayerShip ship = ShipMgr.instance.shipDict[s];
                     if (ship._shipTeam.Value == teamID)
                     {
                         if (!_lShiftRequest.Value)
@@ -131,5 +136,29 @@ public class Player : NetworkBehaviour
         }
         moveReqPrev = _moveRequest.Value;
         
+    }
+
+    void UpdateShipIndicators()
+    {
+        foreach (int i in ShipMgr.instance.shipDict.Keys)
+        {
+            PlayerShip currShip = ShipMgr.instance.shipDict[i];
+            if (_selectedShipList.Contains(currShip._shipID.Value))
+            {
+                if (currShip._shipTeam.Value == _teamID.Value)
+                {
+                    currShip.friendlyMarker.SetActive(true);
+                }
+                else
+                {
+                    currShip.enemyMarker.SetActive(true);
+                }
+            }
+            else
+            {
+                currShip.friendlyMarker.SetActive(false);
+                currShip.enemyMarker.SetActive(false);
+            }
+        }
     }
 }
