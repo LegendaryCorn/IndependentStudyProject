@@ -718,7 +718,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   shipObject: {fileID: 3882385524392852243, guid: 4e9cdadb3651af34091f71f621c3fd98, type: 3}
-  shipList: []
   teamMaterials:
   - {fileID: 2100000, guid: b910544d494806a40befba94d91bf18b, type: 2}
   - {fileID: 2100000, guid: fad5d80623893bb4182f3e0acf1470c0, type: 2}

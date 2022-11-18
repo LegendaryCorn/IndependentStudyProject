@@ -5,7 +5,6 @@ using Unity.Netcode;
 
 public class PlayerShip : NetworkBehaviour
 {
-
     private NetworkVariable<float> _desiredSpeed = new NetworkVariable<float>(writePerm: NetworkVariableWritePermission.Server);
     private NetworkVariable<float> _desiredHeading = new NetworkVariable<float>(writePerm: NetworkVariableWritePermission.Server);
 
@@ -66,6 +65,9 @@ public class PlayerShip : NetworkBehaviour
     {
         float dt = Time.deltaTime;
         DoPhysics(dt);
+        CheckDesiredPosition(dt);
+        CalcDesiredSpeedHeading(dt);
+        UpdatePositions(dt);
     }
 
 
@@ -73,9 +75,7 @@ public class PlayerShip : NetworkBehaviour
     {
         float dt = Time.fixedDeltaTime;
 
-        CheckDesiredPosition(dt);
-        CalcDesiredSpeedHeading(dt);
-        UpdatePositions(dt);
+
     }
 
     void CheckDesiredPosition(float dt)
@@ -133,31 +133,23 @@ public class PlayerShip : NetworkBehaviour
     Vector3 prevPos;
     void UpdatePositions(float dt)
     {
-        
         if (IsServer)
         {
             _desiredSpeed.Value = desiredSpeed;
             _desiredHeading.Value = desiredHeading;
-        }
-        else
-        {
-            desiredSpeed = _desiredSpeed.Value;
-            desiredHeading = _desiredHeading.Value;
-        }
-        
-
-        if (IsServer)
-        {
             _position.Value = position;
             _speed.Value = speed;
             _heading.Value = heading;
         }
-        else
+        else if(prevPos != _position.Value)
         {
+            desiredSpeed = _desiredSpeed.Value;
+            desiredHeading = _desiredHeading.Value;
             position = _position.Value;
             speed = _speed.Value;
             heading = _heading.Value;
         }
+        prevPos = _position.Value;
     }
 
 
