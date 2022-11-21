@@ -6,6 +6,7 @@ using Unity.Netcode;
 
 public class UIMgr : NetworkBehaviour
 {
+    /*
     public TMPro.TMP_Text posText;
     public TMPro.TMP_Text speedText;
     public TMPro.TMP_Text headingText;
@@ -41,7 +42,7 @@ public class UIMgr : NetworkBehaviour
     {
         if (GameMgr.instance.shipDict.ContainsKey(GameMgr.instance.userID))
         {
-            PlayerShip userShip = GameMgr.instance.shipDict[GameMgr.instance.userID];
+            Ship userShip = GameMgr.instance.shipDict[GameMgr.instance.userID];
             float newHeading = userShip.heading * Mathf.Rad2Deg;
 
             posText.text = "x: " + userShip.position.x.ToString("F2") + " z: " + userShip.position.z.ToString("F2");
@@ -52,17 +53,18 @@ public class UIMgr : NetworkBehaviour
 
     void UpdateDesiredSpeedSlider()
     {
-        PlayerShip userShip = GameMgr.instance.shipDict[GameMgr.instance.userID];
+        Ship userShip = GameMgr.instance.shipDict[GameMgr.instance.userID];
         desSpeedSlider.SetValueWithoutNotify(userShip.desiredSpeed);
         desSpeedText.text = "<b>Desired Speed:</b> " + userShip.desiredSpeed.ToString("F2") + " m/s";
     }
 
     void UpdateDesiredHeadingSlider()
     {
-        PlayerShip userShip = GameMgr.instance.shipDict[GameMgr.instance.userID];
+        Ship userShip = GameMgr.instance.shipDict[GameMgr.instance.userID];
         float newHeading = userShip.desiredHeading * Mathf.Rad2Deg;
         desHeadingSlider.SetValueWithoutNotify(newHeading);
         desHeadingText.text = "<b>Desired Heading:</b> " + newHeading.ToString("F1") + "°";
     }
+    */
     
 }

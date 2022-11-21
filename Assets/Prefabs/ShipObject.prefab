@@ -129,10 +129,12 @@ GameObject:
   m_Component:
   - component: {fileID: 5087048545812467465}
   - component: {fileID: -1941750942118506370}
+  - component: {fileID: 3323543847034573128}
   - component: {fileID: 613763475163359597}
+  - component: {fileID: 6364839510600185752}
   - component: {fileID: 3046672994611153893}
   m_Layer: 3
-  m_Name: PlayerShip
+  m_Name: ShipObject
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -170,6 +172,27 @@ MonoBehaviour:
   AlwaysReplicateAsRoot: 0
   DontDestroyWithOwner: 0
   AutoObjectParentSync: 1
+--- !u!114 &3323543847034573128
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3882385524392852243}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f624ccbe9b066c40a34bb24b339a6dd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  physics: {fileID: 613763475163359597}
+  ai: {fileID: 6364839510600185752}
+  shipTeam:
+    m_InternalValue: 0
+  shipID:
+    m_InternalValue: 0
+  shipMarker: {fileID: 7102632239673174502}
+  friendlyMarker: {fileID: 7800878832701511944}
+  enemyMarker: {fileID: 6406156460078963671}
 --- !u!114 &613763475163359597
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -182,27 +205,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a899a37fdbc5d2c44af967b3e228614d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _shipTeam:
-    m_InternalValue: 0
-  _shipID:
-    m_InternalValue: 0
-  desiredSpeed: 0
-  desiredHeading: 0
-  desiredSpeedChangeRate: 5
-  desiredHeadingChangeRate: 5
-  position: {x: 0, y: -99999, z: 0}
-  speed: 0
+  desiredPosition: {x: 0, y: 0, z: 0}
+  hasDesiredPosition: 0
   acceleration: 1
-  minSpeed: -2
+  minSpeed: 0
   maxSpeed: 2
-  heading: 0
-  angularVelocity: 0.6
+  angularVelocity: 0.7
+--- !u!114 &6364839510600185752
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3882385524392852243}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e11eb33299d3e7a46b97bf29583a0d8d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
   minMagnitude: 0.1
-  controlledPlayer: 0
   desiredPositionList: []
-  shipMarker: {fileID: 7102632239673174502}
-  friendlyMarker: {fileID: 7800878832701511944}
-  enemyMarker: {fileID: 6406156460078963671}
 --- !u!65 &3046672994611153893
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -360,7 +382,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: b910544d494806a40befba94d91bf18b, type: 2}
+  - {fileID: 2100000, guid: cb63c9f36e964e44eb304aebed64c95e, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

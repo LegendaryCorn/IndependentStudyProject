@@ -88,10 +88,10 @@ public class Player : NetworkBehaviour
         }
 
         LayerMask shipMask = LayerMask.GetMask("Ship");
-        PlayerShip mouseToShip = null;
+        Ship mouseToShip = null;
         if (Physics.Raycast(_mouseRay.Value, out hit, Mathf.Infinity, shipMask))
         {
-            mouseToShip = hit.collider.gameObject.GetComponent<PlayerShip>();
+            mouseToShip = hit.collider.gameObject.GetComponent<Ship>();
         }
 
         if (_spawnRequest.Value && !spawnReqPrev && !mouseToWater.Equals(Vector3.zero))
@@ -109,7 +109,7 @@ public class Player : NetworkBehaviour
 
             if (mouseToShip != null)
             {
-                _selectedShipList.Add(mouseToShip._shipID.Value);
+                _selectedShipList.Add(mouseToShip.shipID.Value);
 
             }
         }
@@ -121,15 +121,14 @@ public class Player : NetworkBehaviour
             {
                 foreach(int s in _selectedShipList)
                 {
-                    PlayerShip ship = ShipMgr.instance.shipDict[s];
-                    if (ship._shipTeam.Value == teamID)
+                    Ship ship = ShipMgr.instance.shipDict[s];
+                    if (ship.shipTeam.Value == teamID)
                     {
                         if (!_lShiftRequest.Value)
                         {
-                            ship.desiredPositionList.Clear();
+                            ship.ai.ClearDesiredPositions();
                         }
-                        ship.desiredPositionList.Add(mouseToWater);
-                        //ship.controlledPlayer = PlayerMgr.instance.playerDict.ge
+                        ship.ai.AddDesiredPosition(mouseToWater);
                     }
                 }
             }
@@ -142,10 +141,10 @@ public class Player : NetworkBehaviour
     {
         foreach (int i in ShipMgr.instance.shipDict.Keys)
         {
-            PlayerShip currShip = ShipMgr.instance.shipDict[i];
-            if (_selectedShipList.Contains(currShip._shipID.Value))
+            Ship currShip = ShipMgr.instance.shipDict[i];
+            if (_selectedShipList.Contains(currShip.shipID.Value))
             {
-                if (currShip._shipTeam.Value == _teamID.Value)
+                if (currShip.shipTeam.Value == _teamID.Value)
                 {
                     currShip.friendlyMarker.SetActive(true);
                 }
