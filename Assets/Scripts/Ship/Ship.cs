@@ -48,23 +48,7 @@ public class Ship : NetworkBehaviour
 
     public override void OnNetworkDespawn()
     {
+        ShipMgr.instance.shipDict.Remove(shipID.Value);
         base.OnNetworkDespawn();
-    }
-
-
-    void Start()
-    {
-
-    }
-
-    private void Update()
-    {
-
-    }
-
-
-    void FixedUpdate()
-    {
-        float dt = Time.fixedDeltaTime;
     }
 }

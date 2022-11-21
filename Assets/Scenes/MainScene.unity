@@ -718,10 +718,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   shipObject: {fileID: 3882385524392852243, guid: 4e9cdadb3651af34091f71f621c3fd98, type: 3}
-  teamMaterials:
-  - {fileID: 2100000, guid: b910544d494806a40befba94d91bf18b, type: 2}
-  - {fileID: 2100000, guid: fad5d80623893bb4182f3e0acf1470c0, type: 2}
-  - {fileID: 2100000, guid: d9b704c5db5bea649b7dda60e9cc9b0d, type: 2}
 --- !u!1 &168759444
 GameObject:
   m_ObjectHideFlags: 0
@@ -7015,13 +7011,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 47f8bad70fbe2784698f9b54ab88cb58, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  posText: {fileID: 1039554264}
-  speedText: {fileID: 1748422048}
-  headingText: {fileID: 1868912644}
-  desSpeedSlider: {fileID: 1786815413}
-  desSpeedText: {fileID: 271429943}
-  desHeadingSlider: {fileID: 1594294371}
-  desHeadingText: {fileID: 735225505}
 --- !u!114 &1309537112
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10258,8 +10247,8 @@ MonoBehaviour:
     Port: 7777
     ServerListenAddress: 
   DebugSimulator:
-    PacketDelayMS: 0
-    PacketJitterMS: 0
+    PacketDelayMS: 30
+    PacketJitterMS: 1
     PacketDropRate: 0
 --- !u!1 &2046497123
 GameObject:

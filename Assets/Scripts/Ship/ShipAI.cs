@@ -17,23 +17,17 @@ public class ShipAI : MonoBehaviour
     public void AddDesiredPosition(Vector3 pos)
     {
         desiredPositionList.Add(pos);
-
-        if(desiredPositionList.Count == 1)
-        {
-            ship.physics.desiredPosition = pos;
-            ship.physics.hasDesiredPosition = true;
-        }
     }
 
     public void ClearDesiredPositions()
     {
         desiredPositionList.Clear();
-        ship.physics.hasDesiredPosition = false;
     }
 
     private void Update()
     {
         CheckDesiredPosition(Time.deltaTime);
+        CalcDesiredSpeedHeading(Time.deltaTime);
     }
 
     void CheckDesiredPosition(float dt)
@@ -41,9 +35,20 @@ public class ShipAI : MonoBehaviour
         if (desiredPositionList.Count > 0 && Vector3.SqrMagnitude(transform.position - desiredPositionList[0]) < minMagnitude * minMagnitude)
         {
             desiredPositionList.RemoveAt(0);
+        }
+    }
 
-            if (desiredPositionList.Count == 0) ship.physics.hasDesiredPosition = false;
-            else ship.physics.desiredPosition = desiredPositionList[0];
+    void CalcDesiredSpeedHeading(float dt)
+    {
+        if (desiredPositionList.Count > 0)
+        {
+            ship.physics.SetDesiredSpeed(Mathf.Infinity);
+            Vector3 posDiff = desiredPositionList[0] - gameObject.transform.position;
+            ship.physics.SetDesiredHeading(Mathf.Atan2(posDiff.x, posDiff.z));
+        }
+        else
+        {
+            ship.physics.SetDesiredSpeed(0);
         }
     }
 

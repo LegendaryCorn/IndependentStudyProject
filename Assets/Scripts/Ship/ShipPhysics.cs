@@ -7,10 +7,8 @@ public class ShipPhysics : NetworkBehaviour
 {
     private Ship ship;
 
-    public Vector3 desiredPosition;
-    public bool hasDesiredPosition = false;
-    private float desiredSpeed;
-    private float desiredHeading;
+    public float desiredSpeed;
+    public float desiredHeading;
 
     private NetworkVariable<ShipPhysicsNetworkData> physicsData;
 
@@ -30,20 +28,6 @@ public class ShipPhysics : NetworkBehaviour
         base.OnNetworkSpawn();
     }
 
-    void CalcDesiredSpeedHeading(float dt)
-    {
-        if (hasDesiredPosition)
-        {
-            desiredSpeed = maxSpeed;
-            Vector3 posDiff = desiredPosition - physicsData.Value.Position;
-            desiredHeading = Mathf.Atan2(posDiff.x, posDiff.z);
-            desiredHeading += desiredHeading < 0 ? 2 * Mathf.PI : 0;
-        }
-        else
-        {
-            desiredSpeed = 0;
-        }
-    }
 
     void DoPhysics(float dt)
     {
@@ -80,21 +64,29 @@ public class ShipPhysics : NetworkBehaviour
         physicsData.Value = newData;
     }
 
-
+    Vector3 vel;
+    float angVel;
     void UpdatePositions(float dt)
     {
         if (IsServer)
         {
-            CalcDesiredSpeedHeading(dt);
             DoPhysics(dt);
         }
         else
         {
-            transform.position = physicsData.Value.Position;
-            transform.eulerAngles = new Vector3(0, Mathf.Rad2Deg * physicsData.Value.heading, 0);
+            transform.position = Vector3.SmoothDamp(transform.position, physicsData.Value.Position, ref vel, 0.1f);
+            transform.eulerAngles = new Vector3(
+                0, Mathf.SmoothDampAngle(transform.rotation.eulerAngles.y, Mathf.Rad2Deg * physicsData.Value.heading, ref angVel, 0.1f), 0);
         }
     }
 
+    
+    void Update()
+    {
+        UpdatePositions(Time.deltaTime);
+    }
+
+    #region Setters
     public void SetPosition(Vector3 v)
     {
         physicsData.Value = new ShipPhysicsNetworkData
@@ -105,10 +97,16 @@ public class ShipPhysics : NetworkBehaviour
         };
     }
 
-    void Update()
+    public void SetDesiredSpeed(float s)
     {
-        UpdatePositions(Time.deltaTime);
+        desiredSpeed = Mathf.Clamp(s, minSpeed, maxSpeed);
     }
+
+    public void SetDesiredHeading(float h)
+    {
+        ship.physics.desiredHeading = (h < 0 ? 2 * Mathf.PI : 0) + h;
+    }
+    #endregion
 
     struct ShipPhysicsNetworkData : INetworkSerializable
     {
