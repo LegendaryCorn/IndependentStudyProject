@@ -21,11 +21,12 @@ public class ControlMgr : NetworkBehaviour
         float dt = Time.deltaTime;
         if (PlayerMgr.instance.CheckIfOnline())
         {
-            DoPlayerInputs(dt);
+            //DoPlayerInputs(dt);
             DoCameraInputs(dt);
         }
     }
 
+    /*
     void DoPlayerInputs(float dt)
     {
         Player yourPlayer = PlayerMgr.instance.GetClientPlayer();
@@ -38,6 +39,7 @@ public class ControlMgr : NetworkBehaviour
         Ray r = Camera.main.ScreenPointToRay(Input.mousePosition);
         yourPlayer._mouseRay.Value = r;
     }
+    */
 
     void DoCameraInputs(float dt)
     {

@@ -4,15 +4,52 @@ using UnityEngine;
 
 public class PlayerSelection : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+    private Player player;
+
+    public List<Ship> selectedShipList;
+
+    private void Awake()
     {
-        
+        player = gameObject.GetComponent<Player>();
+        selectedShipList = new List<Ship>();
     }
 
-    // Update is called once per frame
-    void Update()
+    public void AddShipToList(Ship s)
     {
-        
+        selectedShipList.Add(s);
+
+        if(s.shipTeam.Value == player.teamID.Value)
+        {
+            s.friendlyMarker.SetActive(true);
+        }
+        else
+        {
+            s.enemyMarker.SetActive(true);
+        }
+    }
+
+    public void RemoveShipFromList(Ship s)
+    {
+        try
+        {
+            selectedShipList.Remove(s);
+            s.friendlyMarker.SetActive(false);
+            s.enemyMarker.SetActive(false);
+        }
+        catch
+        {
+
+        }
+    }
+
+    public void ClearList()
+    {
+        foreach (Ship s in selectedShipList)
+        {
+            s.friendlyMarker.SetActive(false);
+            s.enemyMarker.SetActive(false);
+        }
+
+        selectedShipList.Clear();
     }
 }
