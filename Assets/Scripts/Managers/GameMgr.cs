@@ -30,6 +30,16 @@ public class GameMgr : NetworkBehaviour
         userID = 98989898989;
     }
 
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+        if (IsHost)
+        {
+            AIMgr.instance.GenerateField();
+            AIMgr.instance.ShowField();
+        }
+    }
+
     void Start()
     {
         
