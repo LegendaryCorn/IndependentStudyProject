@@ -16,7 +16,22 @@ public class ShipAI : MonoBehaviour
 
     public void AddDesiredPosition(Vector3 pos)
     {
-        desiredPositionList.Add(pos);
+        Vector3 startPos;
+        if(desiredPositionList.Count == 0)
+        {
+            startPos = gameObject.transform.position;
+        }
+        else
+        {
+            startPos = desiredPositionList[desiredPositionList.Count - 1];
+        }
+        var newDesiredPositions = AIMgr.instance.GeneratePath(startPos, pos);
+        desiredPositionList.AddRange(newDesiredPositions);
+
+        for(int i = 0; i < desiredPositionList.Count - 1; i++)
+        {
+            Debug.DrawLine(desiredPositionList[i], desiredPositionList[i + 1], Color.blue, 10);
+        }
     }
 
     public void ClearDesiredPositions()

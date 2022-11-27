@@ -36,7 +36,7 @@ public class GameMgr : NetworkBehaviour
         if (IsHost)
         {
             AIMgr.instance.GenerateField();
-            AIMgr.instance.ShowField();
+            //AIMgr.instance.ShowField();
         }
     }
 

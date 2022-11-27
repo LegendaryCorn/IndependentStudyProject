@@ -50,7 +50,7 @@ public class AIMgr : MonoBehaviour
             {
                 var pos = new Vector3((-width / 2) + (i * distWidth), 0, (-height / 2) + (j * distHeight));
                 var posRay = new Ray(pos + 100 * Vector3.up, Vector3.down);
-                nodes[i, j] = new Node(pos, !Physics.Raycast(posRay, Mathf.Infinity, terrainMask));
+                nodes[i, j] = new Node(pos, !Physics.Raycast(posRay, Mathf.Infinity, terrainMask), i, j);
 
 
                 //nodes[i, j] = new Node(pos, false, false, false, false);                
@@ -110,11 +110,14 @@ public class AIMgr : MonoBehaviour
         }
 
         // Get closest points
-        int[] startClosestPoint = GetClosestPoint(startPos);
-        int[] endClosestPoint = GetClosestPoint(endPos);
+        var startClosestNode = GetClosestNode(startPos);
+        var endClosestNode = GetClosestNode(endPos);
 
         // Do A*
         float[,] pointValue = new float[numNodesWidth, numNodesHeight];
+        float[,] pathLength = new float[numNodesWidth, numNodesHeight];
+        Node[,] prevNode = new Node[numNodesWidth, numNodesHeight];
+
         for(int i = 0; i < numNodesWidth; i++)
         {
             for(int j = 0; j < numNodesHeight; j++)
@@ -122,45 +125,171 @@ public class AIMgr : MonoBehaviour
                 pointValue[i, j] = Mathf.Infinity;
             }
         }
-        pointValue[startClosestPoint[0], startClosestPoint[1]] = TaxiCabDist(startClosestPoint, endClosestPoint);
+        pointValue[startClosestNode.coordX, startClosestNode.coordY] = TaxiCabDist(startClosestNode, endClosestNode);
+        pathLength[startClosestNode.coordX, startClosestNode.coordY] = 0;
+        prevNode[startClosestNode.coordX, startClosestNode.coordY] = startClosestNode;
+        bool pathFound = false;
 
-        // Flatten
+        List<Node> consideredNodes = new List<Node>();
+        consideredNodes.Add(startClosestNode);
 
-        
+        while(true)
+        {
+            // Find lowest considered point
+            Node lowestNode = startClosestNode;
+            float lowestValue = Mathf.Infinity;
+            foreach(Node n in consideredNodes)
+            {
+                if(pointValue[n.coordX, n.coordY] < lowestValue)
+                {
+                    lowestNode = n;
+                    lowestValue = pointValue[n.coordX, n.coordY];
+                }
+            }
 
-        return pathList;
+            // If no lowest node was found
+            if(lowestValue == Mathf.Infinity)
+            {
+                break;
+            }
+
+            // Check if lowest considered point is the end
+            if (lowestNode.Equals(endClosestNode))
+            {
+                pathFound = true;
+                break;
+            }
+
+            // Add new points and calculate point heuristic
+            consideredNodes.Remove(lowestNode);
+
+            // North
+            if (lowestNode.pathNorth)
+            {
+                var nodeNorth = nodes[lowestNode.coordX, lowestNode.coordY + 1];
+                if (pointValue[nodeNorth.coordX, nodeNorth.coordY] == Mathf.Infinity)
+                {
+                    consideredNodes.Add(nodeNorth);
+                    prevNode[nodeNorth.coordX, nodeNorth.coordY] = lowestNode;
+                    pathLength[nodeNorth.coordX, nodeNorth.coordY] = pathLength[lowestNode.coordX, lowestNode.coordY] + 1;
+                    pointValue[nodeNorth.coordX, nodeNorth.coordY] = pathLength[nodeNorth.coordX, nodeNorth.coordY] + TaxiCabDist(nodeNorth, endClosestNode);
+                }
+            }
+
+            // South
+            if (lowestNode.pathSouth)
+            {
+                var nodeSouth = nodes[lowestNode.coordX, lowestNode.coordY - 1];
+                if (pointValue[nodeSouth.coordX, nodeSouth.coordY] == Mathf.Infinity)
+                {
+                    consideredNodes.Add(nodeSouth);
+                    prevNode[nodeSouth.coordX, nodeSouth.coordY] = lowestNode;
+                    pathLength[nodeSouth.coordX, nodeSouth.coordY] = pathLength[lowestNode.coordX, lowestNode.coordY] + 1;
+                    pointValue[nodeSouth.coordX, nodeSouth.coordY] = pathLength[nodeSouth.coordX, nodeSouth.coordY] + TaxiCabDist(nodeSouth, endClosestNode);
+                }
+            }
+
+            // East
+            if (lowestNode.pathEast)
+            {
+                var nodeEast = nodes[lowestNode.coordX + 1, lowestNode.coordY];
+                if (pointValue[nodeEast.coordX, nodeEast.coordY] == Mathf.Infinity)
+                {
+                    consideredNodes.Add(nodeEast);
+                    prevNode[nodeEast.coordX, nodeEast.coordY] = lowestNode;
+                    pathLength[nodeEast.coordX, nodeEast.coordY] = pathLength[lowestNode.coordX, lowestNode.coordY] + 1;
+                    pointValue[nodeEast.coordX, nodeEast.coordY] = pathLength[nodeEast.coordX, nodeEast.coordY] + TaxiCabDist(nodeEast, endClosestNode);
+                }
+            }
+
+            // West
+            if (lowestNode.pathWest)
+            {
+                var nodeWest = nodes[lowestNode.coordX - 1, lowestNode.coordY];
+                if (pointValue[nodeWest.coordX, nodeWest.coordY] == Mathf.Infinity)
+                {
+                    consideredNodes.Add(nodeWest);
+                    prevNode[nodeWest.coordX, nodeWest.coordY] = lowestNode;
+                    pathLength[nodeWest.coordX, nodeWest.coordY] = pathLength[lowestNode.coordX, lowestNode.coordY] + 1;
+                    pointValue[nodeWest.coordX, nodeWest.coordY] = pathLength[nodeWest.coordX, nodeWest.coordY] + TaxiCabDist(nodeWest, endClosestNode);
+                }
+            }
+        }
+
+        // Create path list
+        if (pathFound)
+        {
+            pathList.Insert(0, endPos);
+            var nextNode = endClosestNode;
+            for(int i = 0; i < 100; i++)
+            {
+                pathList.Insert(0, nextNode.position);
+
+                nextNode = prevNode[nextNode.coordX, nextNode.coordY];
+
+                if (nextNode.position == startClosestNode.position)
+                {
+                    pathList.Insert(0, nextNode.position);
+                    break;
+                }
+            }
+            pathList.Insert(0, startPos);
+        }
+        else
+        {
+            return null;
+        }
+
+        // Flatten path list
+        List<Vector3> newPathList = new List<Vector3>();
+        int prevInd = 0;
+        newPathList.Add(startPos);
+        for(int i = 0; i < pathList.Count; i++)
+        {
+            if (Physics.Linecast(pathList[prevInd], pathList[i], terrainMask))
+            {
+                i--;
+                prevInd = i;
+                newPathList.Add(pathList[i]);
+            }
+        }
+        newPathList.Add(endPos);
+
+        return newPathList;
     }
 
-    private int[] GetClosestPoint(Vector3 v)
+    private Node GetClosestNode(Vector3 v)
     {
         float minSquaredDist = float.MaxValue;
-        int[] minPoint = new int[2];
+        Node minNode = nodes[0,0];
 
         for (int i = 0; i < numNodesWidth; i++)
         {
             for(int j = 0; j < numNodesHeight; j++)
             {
                 Node n = nodes[i, j];
-                if(n.isValid && Vector3.SqrMagnitude(v - n.position) < minSquaredDist && Physics.Linecast(v, n.position, terrainMask))
+                if(n.isValid && Vector3.SqrMagnitude(v - n.position) < minSquaredDist && !Physics.Linecast(v, n.position, terrainMask))
                 {
                     minSquaredDist = Vector3.SqrMagnitude(v - n.position);
-                    minPoint[0] = i;
-                    minPoint[1] = j;
+                    minNode = n;
                 }
             }
         }
-        return minPoint;
+        return minNode;
     }
 
-    private int TaxiCabDist(int[] s, int[] e)
+    private int TaxiCabDist(Node s, Node e)
     {
-        return Mathf.Abs(s[0] - e[0]) + Mathf.Abs(s[1] - e[1]);
+        return Mathf.Abs(s.coordX - e.coordX) + Mathf.Abs(s.coordY - e.coordY);
     }
 
     public struct Node
     {
-        public Node(Vector3 p, bool v)
+        public Node(Vector3 p, bool v, int x, int y)
         {
+            coordX = x;
+            coordY = y;
+
             position = p;
             isValid = v;
 
@@ -177,7 +306,8 @@ public class AIMgr : MonoBehaviour
             pathEast = e;
             pathWest = w;
         }
-
+        public int coordX { get; private set; }
+        public int coordY { get; private set; }
         public Vector3 position { get; private set; }
         public bool pathNorth { get; private set; }
         public bool pathSouth { get; private set; }
