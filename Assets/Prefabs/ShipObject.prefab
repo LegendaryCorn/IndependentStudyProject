@@ -132,6 +132,7 @@ GameObject:
   - component: {fileID: 3323543847034573128}
   - component: {fileID: 613763475163359597}
   - component: {fileID: 6364839510600185752}
+  - component: {fileID: 8101642943071254771}
   - component: {fileID: 3046672994611153893}
   m_Layer: 3
   m_Name: ShipObject
@@ -205,8 +206,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a899a37fdbc5d2c44af967b3e228614d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  desiredPosition: {x: 0, y: 0, z: 0}
-  hasDesiredPosition: 0
+  desiredSpeed: 0
+  desiredHeading: 0
   acceleration: 1
   minSpeed: 0
   maxSpeed: 2
@@ -225,6 +226,25 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   minMagnitude: 0.1
   desiredPositionList: []
+  positionPFConstant: 1000
+  positionPFExponent: -1
+  avoidancePFConstant: 0
+  avoidancePFExponent: 0
+--- !u!114 &8101642943071254771
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3882385524392852243}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9020767314b4a4e4c9aba24082116b9b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  owner: {fileID: 0}
+  constant: -500
+  exponent: -2
 --- !u!65 &3046672994611153893
 BoxCollider:
   m_ObjectHideFlags: 0

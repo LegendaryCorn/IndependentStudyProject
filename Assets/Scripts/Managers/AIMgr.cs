@@ -11,6 +11,8 @@ public class AIMgr : MonoBehaviour
     [SerializeField] private int numNodesWidth;
     [SerializeField] private int numNodesHeight;
 
+    public List<PotentialField> potentialFields;
+
     private Node[,] nodes;
 
     private LayerMask terrainMask;
@@ -28,6 +30,7 @@ public class AIMgr : MonoBehaviour
 
         nodes = null;
         terrainMask = LayerMask.GetMask("Terrain");
+        potentialFields = new List<PotentialField>();
     }
 
 

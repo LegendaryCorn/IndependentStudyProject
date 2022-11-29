@@ -2289,6 +2289,7 @@ MonoBehaviour:
   height: 160
   numNodesWidth: 40
   numNodesHeight: 40
+  potentialFields: []
 --- !u!1 &476285392
 GameObject:
   m_ObjectHideFlags: 0
@@ -6914,7 +6915,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1310152543079862716, guid: 86c763ade057e574e8ab241c9a66cd10, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5394474451637033801, guid: 86c763ade057e574e8ab241c9a66cd10, type: 3}
       propertyPath: m_RootOrder
@@ -9526,7 +9527,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5770330112654054961, guid: 4e76c5d867cf91e42b0e99602489c698, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 4e76c5d867cf91e42b0e99602489c698, type: 3}

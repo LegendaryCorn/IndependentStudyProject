@@ -9,6 +9,14 @@ public class ShipAI : MonoBehaviour
     public float minMagnitude;
     public List<Vector3> desiredPositionList;
 
+    // Potential field at final location
+    [SerializeField] private float positionPFConstant;
+    [SerializeField] private float positionPFExponent;
+
+    // Potential field to guide ship correctly
+    [SerializeField] private float avoidancePFConstant;
+    [SerializeField] private float avoidancePFExponent;
+
     private void Awake()
     {
         ship = gameObject.GetComponent<Ship>();
@@ -57,9 +65,19 @@ public class ShipAI : MonoBehaviour
     {
         if (desiredPositionList.Count > 0)
         {
-            ship.physics.SetDesiredSpeed(Mathf.Infinity);
-            Vector3 posDiff = desiredPositionList[0] - gameObject.transform.position;
-            ship.physics.SetDesiredHeading(Mathf.Atan2(posDiff.x, posDiff.z));
+            float dist = Vector3.Magnitude(gameObject.transform.position - desiredPositionList[0]);
+            Vector3 totalForce = positionPFConstant * Mathf.Pow(dist, positionPFExponent) * Vector3.Normalize(desiredPositionList[0] - gameObject.transform.position);
+            for(int i = 0; i < AIMgr.instance.potentialFields.Count; i++)
+            {
+                PotentialField p = AIMgr.instance.potentialFields[i];
+                totalForce += p.CalcForce(ship);
+
+            }
+            Vector3 normalizedTotalForce = totalForce.normalized;
+            var dh = Mathf.Atan2(normalizedTotalForce.x, normalizedTotalForce.z);
+
+            ship.physics.SetDesiredSpeed(ship.physics.maxSpeed * (Mathf.Cos(Mathf.Deg2Rad * Mathf.DeltaAngle(dh * Mathf.Rad2Deg, transform.eulerAngles.y)) + 1) / 2);
+            ship.physics.SetDesiredHeading(dh);
         }
         else
         {

@@ -14,7 +14,7 @@ public class ShipPhysics : NetworkBehaviour
 
     [SerializeField] private float acceleration;
     [SerializeField] private float minSpeed;
-    [SerializeField] private float maxSpeed;
+    public float maxSpeed;
     [SerializeField] private float angularVelocity;
 
     private void Awake()
