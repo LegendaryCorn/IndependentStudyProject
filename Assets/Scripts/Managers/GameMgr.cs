@@ -2,16 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
-using Unity.Netcode;
 
-public class GameMgr : NetworkBehaviour
+public class GameMgr : MonoBehaviour
 {
-    public Dictionary<ulong, Ship> shipDict;
 
     public static GameMgr instance;
-
-    public ulong userID;
-    public int teamID;
 
     public GameObject pref;
 
@@ -25,24 +20,11 @@ public class GameMgr : NetworkBehaviour
         {
             instance = this;
         }
-
-        shipDict = new Dictionary<ulong, Ship>();
-        userID = 98989898989;
-    }
-
-    public override void OnNetworkSpawn()
-    {
-        base.OnNetworkSpawn();
-        if (IsHost)
-        {
-            AIMgr.instance.GenerateField();
-            //AIMgr.instance.ShowField();
-        }
     }
 
     void Start()
     {
-        
+        AIMgr.instance.GenerateField();
     }
 
 

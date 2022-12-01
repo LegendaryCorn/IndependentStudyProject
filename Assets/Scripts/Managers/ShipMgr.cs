@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Unity.Netcode;
 
 public class ShipMgr : MonoBehaviour
 {
@@ -44,11 +43,11 @@ public class ShipMgr : MonoBehaviour
     {
         GameObject newShip = Instantiate(shipObject);
         Ship newPlayerShip = newShip.GetComponent<Ship>();
-        newPlayerShip.shipTeam.Value = teamID;
+        newPlayerShip.shipTeam = teamID;
         newPlayerShip.transform.position = spawnPos;
-        newPlayerShip.shipID.Value = shipIDSet;
+        newPlayerShip.physics.SetPosition(spawnPos);
+        newPlayerShip.shipID = shipIDSet;
         shipDict[shipIDSet] = newShip.GetComponent<Ship>();
         shipIDSet++;
-        newShip.GetComponent<NetworkObject>().Spawn();
     }
 }

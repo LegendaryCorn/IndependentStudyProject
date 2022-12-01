@@ -2,9 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using Unity.Netcode;
 
-public class UIMgr : NetworkBehaviour
+public class UIMgr : MonoBehaviour
 {
     /*
     public TMPro.TMP_Text posText;

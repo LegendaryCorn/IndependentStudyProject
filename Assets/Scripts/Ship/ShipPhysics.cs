@@ -1,16 +1,15 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Unity.Netcode;
 
-public class ShipPhysics : NetworkBehaviour
+public class ShipPhysics : MonoBehaviour
 {
     private Ship ship;
 
     public float desiredSpeed;
     public float desiredHeading;
 
-    private NetworkVariable<ShipPhysicsNetworkData> physicsData;
+    private ShipPhysicsData physicsData;
 
     [SerializeField] private float acceleration;
     [SerializeField] private float minSpeed;
@@ -20,19 +19,14 @@ public class ShipPhysics : NetworkBehaviour
     private void Awake()
     {
         ship = gameObject.GetComponent<Ship>();
-        physicsData = new NetworkVariable<ShipPhysicsNetworkData>(writePerm: NetworkVariableWritePermission.Server);
-    }
-
-    public override void OnNetworkSpawn()
-    {
-        base.OnNetworkSpawn();
+        physicsData = new ShipPhysicsData();
     }
 
 
     void DoPhysics(float dt)
     {
-        var currData = physicsData.Value;
-        var newData = new ShipPhysicsNetworkData();
+        var currData = physicsData;
+        var newData = new ShipPhysicsData();
 
 
         if ((desiredHeading > currData.heading && desiredHeading < currData.heading + Mathf.PI) || desiredHeading < currData.heading - Mathf.PI)
@@ -61,39 +55,23 @@ public class ShipPhysics : NetworkBehaviour
         gameObject.transform.position = newData.Position;
         gameObject.transform.eulerAngles = new Vector3(0, Mathf.Rad2Deg * newData.heading, 0);
 
-        physicsData.Value = newData;
-    }
-
-    Vector3 vel;
-    float angVel;
-    void UpdatePositions(float dt)
-    {
-        if (IsServer)
-        {
-            DoPhysics(dt);
-        }
-        else
-        {
-            transform.position = Vector3.SmoothDamp(transform.position, physicsData.Value.Position, ref vel, 0.1f);
-            transform.eulerAngles = new Vector3(
-                0, Mathf.SmoothDampAngle(transform.rotation.eulerAngles.y, Mathf.Rad2Deg * physicsData.Value.heading, ref angVel, 0.1f), 0);
-        }
+        physicsData = newData;
     }
 
     
     void Update()
     {
-        UpdatePositions(Time.deltaTime);
+        DoPhysics(Time.deltaTime);
     }
 
     #region Setters
     public void SetPosition(Vector3 v)
     {
-        physicsData.Value = new ShipPhysicsNetworkData
+        physicsData = new ShipPhysicsData()
         {
             Position = v,
-            speed = physicsData.Value.speed,
-            heading = physicsData.Value.heading
+            speed = physicsData.speed,
+            heading = physicsData.heading
         };
     }
 
@@ -108,7 +86,7 @@ public class ShipPhysics : NetworkBehaviour
     }
     #endregion
 
-    struct ShipPhysicsNetworkData : INetworkSerializable
+    struct ShipPhysicsData
     {
         private float x, z;
 
@@ -124,15 +102,6 @@ public class ShipPhysics : NetworkBehaviour
 
         internal float speed;
         internal float heading;
-
-        public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
-        {
-            serializer.SerializeValue(ref x);
-            serializer.SerializeValue(ref z);
-
-            serializer.SerializeValue(ref speed);
-            serializer.SerializeValue(ref heading);
-        }
     }
 
 }

@@ -18,7 +18,7 @@ public class PlayerSelection : MonoBehaviour
     {
         selectedShipList.Add(s);
 
-        if(s.shipTeam.Value == player.teamID.Value)
+        if(s.shipTeam == player.teamID)
         {
             s.friendlyMarker.SetActive(true);
         }

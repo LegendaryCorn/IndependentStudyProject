@@ -1,9 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Unity.Netcode;
 
-public class PlayerControl : NetworkBehaviour
+public class PlayerControl : MonoBehaviour
 {
     private Player player;
 
@@ -20,11 +19,8 @@ public class PlayerControl : NetworkBehaviour
 
     void Update()
     {
-        if (IsOwner)
-        {
-            DoShipInputs(Time.deltaTime);
-            DoCameraInputs(Time.deltaTime);
-        }
+        DoShipInputs(Time.deltaTime);
+        DoCameraInputs(Time.deltaTime);
     }
 
     #region ShipInputs
@@ -54,17 +50,12 @@ public class PlayerControl : NetworkBehaviour
     {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         LayerMask waterMask = LayerMask.GetMask("Water");
+        LayerMask terrainMask = LayerMask.GetMask("Terrain");
         RaycastHit hit;
-        if (Physics.Raycast(ray, out hit, Mathf.Infinity, waterMask))
+        if (Physics.Raycast(ray, out hit, Mathf.Infinity, waterMask) && !Physics.Raycast(ray, out _, Mathf.Infinity, terrainMask))
         {
-            SpawnShipServerRpc(hit.point);
+            ShipMgr.instance.SpawnNewShip(player.teamID, hit.point);
         }
-    }
-
-    [ServerRpc]
-    void SpawnShipServerRpc(Vector3 spawnPos)
-    {
-        ShipMgr.instance.SpawnNewShip(player.teamID.Value, spawnPos);
     }
 
     void SelectShip(bool lshift)
@@ -88,8 +79,9 @@ public class PlayerControl : NetworkBehaviour
 
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         LayerMask waterMask = LayerMask.GetMask("Water");
+        LayerMask terrainMask = LayerMask.GetMask("Terrain");
         RaycastHit hit;
-        if (Physics.Raycast(ray, out hit, Mathf.Infinity, waterMask))
+        if (Physics.Raycast(ray, out hit, Mathf.Infinity, waterMask) && !Physics.Raycast(ray, out _, Mathf.Infinity, terrainMask))
         {
             movePoint = hit.point;
             pointHit = true;
@@ -97,15 +89,14 @@ public class PlayerControl : NetworkBehaviour
 
         foreach (Ship s in player.selection.selectedShipList)
         {
-            if (s.shipTeam.Value == player.teamID.Value)
+            if (s.shipTeam == player.teamID)
             {
-                MoveShipServerRpc(lshift, s.shipID.Value, movePoint, pointHit);
+                MoveShip(lshift, s.shipID, movePoint, pointHit);
             }
         }
     }
 
-    [ServerRpc]
-    void MoveShipServerRpc(bool lshift, int shipID, Vector3 movePos, bool move)
+    void MoveShip(bool lshift, int shipID, Vector3 movePos, bool move)
     {
         Ship s = ShipMgr.instance.shipDict[shipID];
 
@@ -119,8 +110,6 @@ public class PlayerControl : NetworkBehaviour
             s.ai.AddDesiredPosition(movePos);
         }
     }
-
-
 
     #endregion
 
