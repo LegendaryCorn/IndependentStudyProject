@@ -113,6 +113,12 @@ public class ShipAI : MonoBehaviour
                     riskTypeList.Add(CalcRiskType(otherShip));
                 }
 
+                if (dist < minCollisionDist && riskOfCollisionList.Contains(otherShip))
+                {
+                    int i = riskOfCollisionList.IndexOf(otherShip);
+                    riskTypeList[i] = CalcRiskType(otherShip);
+                }
+
                 // Remove dist if far
                 if (dist > maxCollisionDist && riskOfCollisionList.Contains(otherShip))
                 {
