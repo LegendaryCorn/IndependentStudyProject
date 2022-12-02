@@ -206,11 +206,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   minMagnitude: 0.1
+  minCollisionDist: 4
   desiredPositionList: []
   positionPFConstant: 1000
   positionPFExponent: -1
-  avoidancePFConstant: 0
-  avoidancePFExponent: 0
+  avoidancePFConstant: 20000
+  avoidancePFExponent: -3
 --- !u!114 &8101642943071254771
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -223,8 +224,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9020767314b4a4e4c9aba24082116b9b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  owner: {fileID: 0}
-  constant: -500
+  owner: {fileID: 3323543847034573128}
+  constant: 0
   exponent: -2
 --- !u!65 &3046672994611153893
 BoxCollider:

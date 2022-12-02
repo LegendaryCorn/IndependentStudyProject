@@ -86,6 +86,19 @@ public class ShipPhysics : MonoBehaviour
     }
     #endregion
 
+    #region Getters
+    public Vector3 GetVelocity()
+    {
+        return physicsData.speed * new Vector3(Mathf.Sin(physicsData.heading), 0, Mathf.Cos(physicsData.heading));
+    }
+
+    public float GetSpeed()
+    {
+        return physicsData.speed;
+    }
+
+    #endregion
+
     struct ShipPhysicsData
     {
         private float x, z;
