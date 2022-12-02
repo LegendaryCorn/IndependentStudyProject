@@ -9,6 +9,7 @@ public class ShipAI : MonoBehaviour
     public float minMagnitude;
 
     [SerializeField] private float minCollisionDist;
+    [SerializeField] private float maxCollisionDist;
 
     public List<Vector3> desiredPositionList;
 
@@ -17,8 +18,7 @@ public class ShipAI : MonoBehaviour
     [SerializeField] private float positionPFExponent;
 
     // Potential field to guide ship correctly
-    private bool avoidancePFEnabled = false;
-    private Vector3 avoidancePFLocation;
+    private List<Vector3> avoidancePFList = new List<Vector3>();
     [SerializeField] private float avoidancePFConstant;
     [SerializeField] private float avoidancePFExponent;
 
@@ -30,7 +30,7 @@ public class ShipAI : MonoBehaviour
     public void AddDesiredPosition(Vector3 pos)
     {
         Vector3 startPos;
-        if(desiredPositionList.Count == 0)
+        if (desiredPositionList.Count == 0)
         {
             startPos = gameObject.transform.position;
         }
@@ -41,7 +41,7 @@ public class ShipAI : MonoBehaviour
         var newDesiredPositions = AIMgr.instance.GeneratePath(startPos, pos);
         desiredPositionList.AddRange(newDesiredPositions);
 
-        for(int i = 0; i < desiredPositionList.Count - 1; i++)
+        for (int i = 0; i < desiredPositionList.Count - 1; i++)
         {
             Debug.DrawLine(desiredPositionList[i], desiredPositionList[i + 1], Color.blue, 10);
         }
@@ -67,10 +67,26 @@ public class ShipAI : MonoBehaviour
         }
     }
 
+    List<Ship> riskOfCollisionList = new List<Ship>();
+    List<RiskTypes> riskTypeList = new List<RiskTypes>();
+    enum RiskTypes {HeadOn, Overtaking, Overtaken, CrossingTurn, CrossingHold }
     void CheckForCollisions(float dt)
     {
-        Ship closestShip = null;
-        float closestDist = minCollisionDist;
+        // Check for ships where there is a risk of collision
+        // If there is a risk of collision, create a potential field
+        // If there is no longer a risk of collision, remove that potential field
+
+        // Check if the ships have been removed
+        foreach(Ship s in riskOfCollisionList)
+        {
+            if (!ShipMgr.instance.shipDict.ContainsValue(s))
+            {
+                int i = riskOfCollisionList.IndexOf(s);
+                riskOfCollisionList.RemoveAt(i);
+                riskTypeList.RemoveAt(i);
+                print(i);
+            }
+        }
 
         Vector3 yourShipPos = gameObject.transform.position;
 
@@ -91,47 +107,92 @@ public class ShipAI : MonoBehaviour
                 var dist = Mathf.Abs(a * yourShipPos.x + b * yourShipPos.z + c) / Mathf.Sqrt(a * a + b * b);
 
                 // Record dist if close
-                if(dist < closestDist)
+                if(dist < minCollisionDist && !riskOfCollisionList.Contains(otherShip))
                 {
-                    closestShip = otherShip;
-                    closestDist = dist;
+                    riskOfCollisionList.Add(otherShip);
+                    riskTypeList.Add(CalcRiskType(otherShip));
+                }
+
+                // Remove dist if far
+                if (dist > maxCollisionDist && riskOfCollisionList.Contains(otherShip))
+                {
+                    int i = riskOfCollisionList.IndexOf(otherShip);
+                    riskOfCollisionList.RemoveAt(i);
+                    riskTypeList.RemoveAt(i);
+                }
+            }
+
+            // If moving away, remove it from the list, as they will never collide
+            else
+            {
+                if (riskOfCollisionList.Contains(otherShip))
+                {
+                    int i = riskOfCollisionList.IndexOf(otherShip);
+                    riskOfCollisionList.RemoveAt(i);
+                    riskTypeList.RemoveAt(i);
                 }
             }
         }
 
-        avoidancePFEnabled = false;
+        // Create potential fields
+        avoidancePFList.Clear();
 
-        // If there exists a closest ship, calculate angles and take appropriate action
-        if (closestShip != null)
+        for(int i = 0; i < riskOfCollisionList.Count; i++)
         {
-            float angDiff = Mathf.DeltaAngle(gameObject.transform.eulerAngles.y, closestShip.transform.eulerAngles.y);
-            float speedDiff = ship.physics.GetSpeed() - closestShip.physics.GetSpeed();
-            string s = "";
+            Ship s = riskOfCollisionList[i];
+            Vector3 normalizedVel = Vector3.Normalize(s.physics.GetVelocity());
 
-            if (Mathf.Abs(angDiff) > 160)
+            switch (riskTypeList[i])
             {
-                s = "HeadOn";
-                Vector3 normalizedVel = Vector3.Normalize(closestShip.physics.GetVelocity());
-                avoidancePFLocation = closestShip.transform.position + 8 * new Vector3(-normalizedVel.z, 0, normalizedVel.x);
-                avoidancePFEnabled = true;
+                case RiskTypes.HeadOn:
+                    print("Headon");
+                    var h = s.transform.position + 15 * new Vector3(-0.0f * normalizedVel.x - normalizedVel.z, 0, normalizedVel.x - 0.0f * normalizedVel.z).normalized;
+                    avoidancePFList.Add(h);
+                    break;
+
+                case RiskTypes.Overtaking:
+                    var o = s.transform.position + 30 * new Vector3(0.0f * normalizedVel.x + normalizedVel.z, 0, -normalizedVel.x + 0.0f * normalizedVel.z).normalized;
+                    avoidancePFList.Add(o);
+                    break;
+
+                case RiskTypes.CrossingTurn:
+                    var c = s.transform.position + 40 * new Vector3(-0.0f * normalizedVel.z - normalizedVel.x, 0, -normalizedVel.z - 0.0f * normalizedVel.x).normalized;
+                    avoidancePFList.Add(c);
+                    break;
+
+                case RiskTypes.Overtaken:
+                case RiskTypes.CrossingHold:
+                default:
+                    break;
             }
-            else if(Mathf.Abs(angDiff) < 5 && speedDiff > 0)
-            {
-                s = "Overtaking";
-            }
-            else if (Mathf.Abs(angDiff) < 5 && speedDiff < 0)
-            {
-                s = "Overtaken";
-            }
-            else if (angDiff < 0)
-            {
-                s = "Crossing Turn to Starboard";
-            }
-            else
-            {
-                s = "Crossing Hold Course";
-            }
-            //Debug.Log(ship.shipID + " " + s);
+        }
+
+    }
+
+    RiskTypes CalcRiskType(Ship otherShip)
+    {
+        float angDiff = Mathf.DeltaAngle(gameObject.transform.eulerAngles.y, otherShip.transform.eulerAngles.y);
+        float speedDiff = ship.physics.GetSpeed() - otherShip.physics.GetSpeed();
+
+        if (Mathf.Abs(angDiff) > 160)
+        {
+            return RiskTypes.HeadOn;
+        }
+        else if (Mathf.Abs(angDiff) < 5 && speedDiff > 0)
+        {
+            return RiskTypes.Overtaking;
+        }
+        else if (Mathf.Abs(angDiff) < 5 && speedDiff < 0)
+        {
+            return RiskTypes.Overtaken;
+        }
+        else if (angDiff < 0)
+        {
+            return RiskTypes.CrossingTurn;
+        }
+        else
+        {
+            return RiskTypes.CrossingHold;
         }
     }
 
@@ -142,8 +203,9 @@ public class ShipAI : MonoBehaviour
             float dist = Vector3.Magnitude(gameObject.transform.position - desiredPositionList[0]);
             Vector3 totalForce = positionPFConstant * Mathf.Pow(dist, positionPFExponent) * Vector3.Normalize(desiredPositionList[0] - gameObject.transform.position);
 
-            if (avoidancePFEnabled)
+            for(int a = 0; a < avoidancePFList.Count; a++)
             {
+                var avoidancePFLocation = avoidancePFList[a];
                 var avDist = Vector3.Magnitude(gameObject.transform.position - avoidancePFLocation);
                 totalForce += avoidancePFConstant * Mathf.Pow(avDist, avoidancePFExponent) * Vector3.Normalize(avoidancePFLocation - gameObject.transform.position);
             }

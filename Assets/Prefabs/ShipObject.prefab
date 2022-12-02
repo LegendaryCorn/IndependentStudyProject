@@ -192,7 +192,7 @@ MonoBehaviour:
   acceleration: 1
   minSpeed: 0
   maxSpeed: 2
-  angularVelocity: 0.7
+  angularVelocity: 0.2
 --- !u!114 &6364839510600185752
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -207,11 +207,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   minMagnitude: 0.1
   minCollisionDist: 4
+  maxCollisionDist: 2000
   desiredPositionList: []
   positionPFConstant: 1000
   positionPFExponent: -1
-  avoidancePFConstant: 20000
-  avoidancePFExponent: -3
+  avoidancePFConstant: 10000
+  avoidancePFExponent: -2
 --- !u!114 &8101642943071254771
 MonoBehaviour:
   m_ObjectHideFlags: 0
