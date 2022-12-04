@@ -17,15 +17,7 @@ public class PlayerSelection : MonoBehaviour
     public void AddShipToList(Ship s)
     {
         selectedShipList.Add(s);
-
-        if(s.shipTeam == player.teamID)
-        {
-            s.friendlyMarker.SetActive(true);
-        }
-        else
-        {
-            s.enemyMarker.SetActive(true);
-        }
+        s.render.SelectShipRender(s.shipTeam == player.teamID);
     }
 
     public void RemoveShipFromList(Ship s)
@@ -33,8 +25,7 @@ public class PlayerSelection : MonoBehaviour
         try
         {
             selectedShipList.Remove(s);
-            s.friendlyMarker.SetActive(false);
-            s.enemyMarker.SetActive(false);
+            s.render.DeselectShipRender();
         }
         catch
         {
@@ -46,8 +37,7 @@ public class PlayerSelection : MonoBehaviour
     {
         foreach (Ship s in selectedShipList)
         {
-            s.friendlyMarker.SetActive(false);
-            s.enemyMarker.SetActive(false);
+            s.render.DeselectShipRender();
         }
 
         selectedShipList.Clear();

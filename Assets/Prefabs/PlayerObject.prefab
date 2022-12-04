@@ -61,9 +61,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 28297acd72efb3448bb58aea26461d3f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  camMoveAdjustRate: 3
+  camMoveAdjustRate: 30
   camRotAdjustRate: 240
-  camZoomAdjustRate: 5
+  camZoomAdjustRate: 500
 --- !u!114 &7653816024020743896
 MonoBehaviour:
   m_ObjectHideFlags: 0

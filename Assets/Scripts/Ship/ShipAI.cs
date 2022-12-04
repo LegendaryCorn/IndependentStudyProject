@@ -11,6 +11,8 @@ public class ShipAI : MonoBehaviour
     [SerializeField] private float minCollisionDist;
     [SerializeField] private float maxCollisionDist;
 
+    [SerializeField] private float actionDist;
+
     public List<Vector3> desiredPositionList;
 
     // Potential field at final location
@@ -40,11 +42,6 @@ public class ShipAI : MonoBehaviour
         }
         var newDesiredPositions = AIMgr.instance.GeneratePath(startPos, pos);
         desiredPositionList.AddRange(newDesiredPositions);
-
-        for (int i = 0; i < desiredPositionList.Count - 1; i++)
-        {
-            Debug.DrawLine(desiredPositionList[i], desiredPositionList[i + 1], Color.blue, 10);
-        }
     }
 
     public void ClearDesiredPositions()
@@ -97,8 +94,8 @@ public class ShipAI : MonoBehaviour
             // Calculate relative velocity
             var relVel = otherShip.physics.GetVelocity() - ship.physics.GetVelocity();
 
-            // If heading towards, calculate minimum distance between two ships
-            if(Vector3.Dot(relVel, otherShipPos - yourShipPos) < 0)
+            // If heading towards and if close enough, calculate minimum distance between two ships
+            if(Vector3.Dot(relVel, otherShipPos - yourShipPos) < 0 && Vector3.Magnitude(yourShipPos - otherShipPos) < actionDist)
             {
                 var a = 1.0f / relVel.x;
                 var b = -1.0f / relVel.z;
@@ -152,17 +149,17 @@ public class ShipAI : MonoBehaviour
             {
                 case RiskTypes.HeadOn:
                     print("Headon");
-                    var h = s.transform.position + 15 * new Vector3(-0.0f * normalizedVel.x - normalizedVel.z, 0, normalizedVel.x - 0.0f * normalizedVel.z).normalized;
+                    var h = s.transform.position + 500 * new Vector3(-0.0f * normalizedVel.x - normalizedVel.z, 0, normalizedVel.x - 0.0f * normalizedVel.z).normalized;
                     avoidancePFList.Add(h);
                     break;
 
                 case RiskTypes.Overtaking:
-                    var o = s.transform.position + 30 * new Vector3(0.0f * normalizedVel.x + normalizedVel.z, 0, -normalizedVel.x + 0.0f * normalizedVel.z).normalized;
+                    var o = s.transform.position + 1000 * new Vector3(0.0f * normalizedVel.x + normalizedVel.z, 0, -normalizedVel.x + 0.0f * normalizedVel.z).normalized;
                     avoidancePFList.Add(o);
                     break;
 
                 case RiskTypes.CrossingTurn:
-                    var c = s.transform.position + 40 * new Vector3(-0.0f * normalizedVel.z - normalizedVel.x, 0, -normalizedVel.z - 0.0f * normalizedVel.x).normalized;
+                    var c = s.transform.position + 1400 * new Vector3(-0.0f * normalizedVel.z - normalizedVel.x, 0, -normalizedVel.z - 0.0f * normalizedVel.x).normalized;
                     avoidancePFList.Add(c);
                     break;
 
