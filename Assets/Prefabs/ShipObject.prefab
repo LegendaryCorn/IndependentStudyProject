@@ -204,15 +204,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e11eb33299d3e7a46b97bf29583a0d8d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  minMagnitude: 0.1
-  minCollisionDist: 4
-  maxCollisionDist: 2000
-  actionDist: 500
+  minMagnitude: 2.5
+  minCollisionDist: 500
+  maxCollisionDist: 5000
+  actionDist: 1000
   desiredPositionList: []
   positionPFConstant: 1000
   positionPFExponent: -1
+  avoidancePFList: []
   avoidancePFConstant: 75000
-  avoidancePFExponent: -2
+  avoidancePFExponent: -1.5
 --- !u!114 &1761140690531568912
 MonoBehaviour:
   m_ObjectHideFlags: 0

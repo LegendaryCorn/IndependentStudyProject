@@ -20,7 +20,7 @@ public class ShipAI : MonoBehaviour
     [SerializeField] private float positionPFExponent;
 
     // Potential field to guide ship correctly
-    private List<Vector3> avoidancePFList = new List<Vector3>();
+    [SerializeField] private List<Vector3> avoidancePFList = new List<Vector3>();
     [SerializeField] private float avoidancePFConstant;
     [SerializeField] private float avoidancePFExponent;
 
@@ -66,14 +66,11 @@ public class ShipAI : MonoBehaviour
 
     List<Ship> riskOfCollisionList = new List<Ship>();
     List<RiskTypes> riskTypeList = new List<RiskTypes>();
-    enum RiskTypes {HeadOn, Overtaking, Overtaken, CrossingTurn, CrossingHold }
+    enum RiskTypes {HeadOn, Overtaking, Overtaken, CrossingTurn, CrossingHold, None }
     void CheckForCollisions(float dt)
     {
-        // Check for ships where there is a risk of collision
-        // If there is a risk of collision, create a potential field
-        // If there is no longer a risk of collision, remove that potential field
 
-        // Check if the ships have been removed
+        // Check if the ships have been deleted
         foreach(Ship s in riskOfCollisionList)
         {
             if (!ShipMgr.instance.shipDict.ContainsValue(s))
@@ -113,7 +110,7 @@ public class ShipAI : MonoBehaviour
                 if (dist < minCollisionDist && riskOfCollisionList.Contains(otherShip))
                 {
                     int i = riskOfCollisionList.IndexOf(otherShip);
-                    riskTypeList[i] = CalcRiskType(otherShip);
+                    riskTypeList[i] = riskTypeList[i] == RiskTypes.Overtaking || riskTypeList[i] == RiskTypes.Overtaken ? riskTypeList[i] : CalcRiskType(otherShip);
                 }
 
                 // Remove dist if far
@@ -149,22 +146,25 @@ public class ShipAI : MonoBehaviour
             {
                 case RiskTypes.HeadOn:
                     print("Headon");
-                    var h = s.transform.position + 500 * new Vector3(-0.0f * normalizedVel.x - normalizedVel.z, 0, normalizedVel.x - 0.0f * normalizedVel.z).normalized;
+                    var h = s.transform.position + 500 * new Vector3(- normalizedVel.z, 0, normalizedVel.x).normalized;
                     avoidancePFList.Add(h);
                     break;
 
                 case RiskTypes.Overtaking:
-                    var o = s.transform.position + 1000 * new Vector3(0.0f * normalizedVel.x + normalizedVel.z, 0, -normalizedVel.x + 0.0f * normalizedVel.z).normalized;
+                    print("Overtaking");
+                    var o = s.transform.position + 400 * new Vector3(normalizedVel.z, 0, -normalizedVel.x).normalized;
                     avoidancePFList.Add(o);
                     break;
 
                 case RiskTypes.CrossingTurn:
-                    var c = s.transform.position + 1400 * new Vector3(-0.0f * normalizedVel.z - normalizedVel.x, 0, -normalizedVel.z - 0.0f * normalizedVel.x).normalized;
+                    print("Crossing");
+                    var c = s.transform.position + 500 * new Vector3(- normalizedVel.x, 0, -normalizedVel.z).normalized;
                     avoidancePFList.Add(c);
                     break;
 
-                case RiskTypes.Overtaken:
-                case RiskTypes.CrossingHold:
+                //case RiskTypes.Overtaken:
+                //case RiskTypes.CrossingHold:
+                //case RiskTypes.None:
                 default:
                     break;
             }
@@ -176,27 +176,31 @@ public class ShipAI : MonoBehaviour
     {
         float angDiff = Mathf.DeltaAngle(gameObject.transform.eulerAngles.y, otherShip.transform.eulerAngles.y);
         float speedDiff = ship.physics.GetSpeed() - otherShip.physics.GetSpeed();
+        Vector3 disLocation = otherShip.transform.position - gameObject.transform.position;
+        float distDiff = Vector3.Magnitude(disLocation);
+        float relAngle = Mathf.Abs(Mathf.Rad2Deg * Mathf.Acos(Vector3.Dot(disLocation, -otherShip.physics.GetVelocity()) / (disLocation.magnitude * -otherShip.physics.GetVelocity().magnitude)));
 
         if (Mathf.Abs(angDiff) > 160)
         {
             return RiskTypes.HeadOn;
         }
-        else if (Mathf.Abs(angDiff) < 5 && speedDiff > 0)
+        else if (Mathf.Abs(angDiff) < 10 && speedDiff > 0 && distDiff < 2 * actionDist / 3 && relAngle < 5)
         {
             return RiskTypes.Overtaking;
         }
-        else if (Mathf.Abs(angDiff) < 5 && speedDiff < 0)
+        else if (Mathf.Abs(angDiff) < 10 && speedDiff < 0 && distDiff < 2 * actionDist / 3 && relAngle < 5) 
         {
             return RiskTypes.Overtaken;
         }
-        else if (angDiff < 0)
+        else if (angDiff < -10)
         {
             return RiskTypes.CrossingTurn;
         }
-        else
+        else if (angDiff > 10)
         {
             return RiskTypes.CrossingHold;
         }
+        return RiskTypes.None;
     }
 
     void CalcDesiredSpeedHeading(float dt)

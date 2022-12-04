@@ -19,6 +19,7 @@ public class ShipRender : MonoBehaviour
         ship = gameObject.GetComponent<Ship>();
 
         var g = new GameObject();
+        g.transform.parent = gameObject.transform;
         pathLines = g.AddComponent<LineRenderer>();
         pathLines.enabled = false;
         pathLines.positionCount = 0;
