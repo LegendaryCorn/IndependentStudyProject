@@ -25,6 +25,7 @@ public class GameMgr : MonoBehaviour
     void Start()
     {
         AIMgr.instance.GenerateField();
+        AIMgr.instance.ShowField();
     }
 
 
