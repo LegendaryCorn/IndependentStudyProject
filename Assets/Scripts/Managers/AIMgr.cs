@@ -14,6 +14,8 @@ public class AIMgr : MonoBehaviour
     public List<PotentialField> potentialFields;
 
     private Node[,] nodes;
+    private Node[,] nodesLane1;
+    private Node[,] nodesLane2;
 
     private LayerMask terrainMask;
 
@@ -29,6 +31,8 @@ public class AIMgr : MonoBehaviour
         }
 
         nodes = null;
+        nodesLane1 = null;
+        nodesLane2 = null;
         terrainMask = LayerMask.GetMask("Terrain");
         potentialFields = new List<PotentialField>();
     }
@@ -41,7 +45,19 @@ public class AIMgr : MonoBehaviour
 
     public void GenerateField()
     {
-        nodes = new Node[numNodesWidth, numNodesHeight];
+        LayerMask mask0 = LayerMask.GetMask("Terrain", "Outside");
+        nodes = CreateNodeField(mask0);
+
+        LayerMask mask1 = LayerMask.GetMask("Terrain", "Outside", "Lane2");
+        nodesLane1 = CreateNodeField(mask1);
+
+        LayerMask mask2 = LayerMask.GetMask("Terrain", "Outside", "Lane1");
+        nodesLane2 = CreateNodeField(mask2);
+    }
+    
+    private Node[,] CreateNodeField(LayerMask lMask)
+    {
+        Node[,] nodeField = new Node[numNodesWidth, numNodesHeight];
 
         var distWidth = width / numNodesWidth;
         var distHeight = height / numNodesHeight;
@@ -53,10 +69,7 @@ public class AIMgr : MonoBehaviour
             {
                 var pos = new Vector3((-width / 2) + (i * distWidth), 0, (-height / 2) + (j * distHeight));
                 var posRay = new Ray(pos + 100 * Vector3.up, Vector3.down);
-                nodes[i, j] = new Node(pos, !Physics.Raycast(posRay, Mathf.Infinity, terrainMask), i, j);
-
-
-                //nodes[i, j] = new Node(pos, false, false, false, false);                
+                nodeField[i, j] = new Node(pos, !Physics.Raycast(posRay, Mathf.Infinity, lMask), i, j);             
             }
         }
 
@@ -65,19 +78,21 @@ public class AIMgr : MonoBehaviour
         {
             for (int j = 0; j < numNodesHeight; j++)
             {
-                Node node = nodes[i, j];
+                Node node = nodeField[i, j];
                 if (node.isValid)
                 {
                     var pos = node.position;
-                    var n = (j < numNodesHeight - 1 && nodes[i,j+1].isValid) ? !Physics.Raycast(pos, Vector3.forward, distHeight, terrainMask) : false;
-                    var s = (j > 0 && nodes[i, j - 1].isValid) ? !Physics.Raycast(pos, Vector3.back, distHeight, terrainMask) : false;
-                    var e = (i < numNodesWidth - 1 && nodes[i+1, j].isValid) ? !Physics.Raycast(pos, Vector3.right, distWidth, terrainMask) : false;
-                    var w = (i > 0 && nodes[i-1, j].isValid) ? !Physics.Raycast(pos, Vector3.left, distWidth, terrainMask) : false;
+                    var n = (j < numNodesHeight - 1 && nodeField[i, j + 1].isValid) ? !Physics.Raycast(pos, Vector3.forward, distHeight, lMask) : false;
+                    var s = (j > 0 && nodeField[i, j - 1].isValid) ? !Physics.Raycast(pos, Vector3.back, distHeight, lMask) : false;
+                    var e = (i < numNodesWidth - 1 && nodeField[i + 1, j].isValid) ? !Physics.Raycast(pos, Vector3.right, distWidth, lMask) : false;
+                    var w = (i > 0 && nodeField[i - 1, j].isValid) ? !Physics.Raycast(pos, Vector3.left, distWidth, lMask) : false;
 
-                    nodes[i, j].SetPaths(n, s, e, w);
+                    nodeField[i, j].SetPaths(n, s, e, w);
                 }
             }
         }
+
+        return nodeField;
     }
 
     public void ShowField()
@@ -103,6 +118,25 @@ public class AIMgr : MonoBehaviour
     {
         
         List<Vector3> pathList = new List<Vector3>();
+        Node[,] nodesToUse = null;
+
+        var endZone = GetPointZone(endPos);
+
+        switch (endZone)
+        {
+            case "Zone2":
+            case "Lane1":
+                nodesToUse = nodesLane1;
+                break;
+            case "Zone1":
+            case "Lane2":
+                nodesToUse = nodesLane2;
+                break;
+            default:
+                nodesToUse = nodes;
+                break;
+
+        }
 
         // Check if there is a direct path already (no fancy math needed)
         if (!Physics.Linecast(startPos, endPos, terrainMask))
@@ -113,8 +147,8 @@ public class AIMgr : MonoBehaviour
         }
 
         // Get closest points
-        var startClosestNode = GetClosestNode(startPos);
-        var endClosestNode = GetClosestNode(endPos);
+        var startClosestNode = GetClosestNode(startPos, nodesToUse);
+        var endClosestNode = GetClosestNode(endPos, nodesToUse);
 
         // Do A*
         float[,] pointValue = new float[numNodesWidth, numNodesHeight];
@@ -169,7 +203,7 @@ public class AIMgr : MonoBehaviour
             // North
             if (lowestNode.pathNorth)
             {
-                var nodeNorth = nodes[lowestNode.coordX, lowestNode.coordY + 1];
+                var nodeNorth = nodesToUse[lowestNode.coordX, lowestNode.coordY + 1];
                 if (pointValue[nodeNorth.coordX, nodeNorth.coordY] == Mathf.Infinity)
                 {
                     consideredNodes.Add(nodeNorth);
@@ -182,7 +216,7 @@ public class AIMgr : MonoBehaviour
             // South
             if (lowestNode.pathSouth)
             {
-                var nodeSouth = nodes[lowestNode.coordX, lowestNode.coordY - 1];
+                var nodeSouth = nodesToUse[lowestNode.coordX, lowestNode.coordY - 1];
                 if (pointValue[nodeSouth.coordX, nodeSouth.coordY] == Mathf.Infinity)
                 {
                     consideredNodes.Add(nodeSouth);
@@ -195,7 +229,7 @@ public class AIMgr : MonoBehaviour
             // East
             if (lowestNode.pathEast)
             {
-                var nodeEast = nodes[lowestNode.coordX + 1, lowestNode.coordY];
+                var nodeEast = nodesToUse[lowestNode.coordX + 1, lowestNode.coordY];
                 if (pointValue[nodeEast.coordX, nodeEast.coordY] == Mathf.Infinity)
                 {
                     consideredNodes.Add(nodeEast);
@@ -208,7 +242,7 @@ public class AIMgr : MonoBehaviour
             // West
             if (lowestNode.pathWest)
             {
-                var nodeWest = nodes[lowestNode.coordX - 1, lowestNode.coordY];
+                var nodeWest = nodesToUse[lowestNode.coordX - 1, lowestNode.coordY];
                 if (pointValue[nodeWest.coordX, nodeWest.coordY] == Mathf.Infinity)
                 {
                     consideredNodes.Add(nodeWest);
@@ -242,12 +276,19 @@ public class AIMgr : MonoBehaviour
         {
             return null;
         }
-
+        
         // Flatten path list
         List<Vector3> newPathList = new List<Vector3>();
         int prevInd = 0;
         newPathList.Add(startPos);
-        for(int i = 0; i < pathList.Count; i++)
+
+        if(Physics.Linecast(pathList[0], pathList[1], terrainMask))
+        {
+            newPathList.Add(pathList[1]);
+            prevInd = 1;
+        }
+
+        for (int i = 1; i < pathList.Count - 1; i++)
         {
             if (Physics.Linecast(pathList[prevInd], pathList[i], terrainMask))
             {
@@ -256,22 +297,23 @@ public class AIMgr : MonoBehaviour
                 newPathList.Add(pathList[i]);
             }
         }
+        newPathList.Add(pathList[pathList.Count - 1]);
         newPathList.Add(endPos);
-
+        
         return newPathList;
     }
 
-    private Node GetClosestNode(Vector3 v)
+    private Node GetClosestNode(Vector3 v, Node[,] nodesToUse)
     {
         float minSquaredDist = float.MaxValue;
-        Node minNode = nodes[0,0];
+        Node minNode = nodesToUse[0,0];
 
         for (int i = 0; i < numNodesWidth; i++)
         {
             for(int j = 0; j < numNodesHeight; j++)
             {
-                Node n = nodes[i, j];
-                if(n.isValid && Vector3.SqrMagnitude(v - n.position) < minSquaredDist && !Physics.Linecast(v, n.position, terrainMask))
+                Node n = nodesToUse[i, j];
+                if(n.isValid && Vector3.SqrMagnitude(v - n.position) < minSquaredDist)
                 {
                     minSquaredDist = Vector3.SqrMagnitude(v - n.position);
                     minNode = n;
@@ -280,6 +322,22 @@ public class AIMgr : MonoBehaviour
         }
         return minNode;
     }
+
+    private string GetPointZone(Vector3 v)
+    {
+        LayerMask lm = LayerMask.GetMask("Lane1", "Lane2", "Zone1", "Zone2");
+        Ray r = new Ray(new Vector3(v.x, 1000, v.z), Vector3.down);
+        RaycastHit hit;
+        if(Physics.Raycast(r, out hit, Mathf.Infinity, lm))
+        {
+            return LayerMask.LayerToName(hit.collider.gameObject.layer);
+        }
+        else
+        {
+            return "None!";
+        }
+    }
+    
 
     private int TaxiCabDist(Node s, Node e)
     {

@@ -183,6 +183,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: RoadPath
       objectReference: {fileID: 0}
+    - target: {fileID: 2414678630398595545, guid: 14665f3f184780445b158fd3a303ce56, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 8046947507780871188, guid: 14665f3f184780445b158fd3a303ce56, type: 3}
       propertyPath: m_RootOrder
       value: 0

@@ -204,7 +204,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e11eb33299d3e7a46b97bf29583a0d8d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  minMagnitude: 2.5
+  minMagnitude: 10
   minCollisionDist: 500
   maxCollisionDist: 5000
   actionDist: 1000
