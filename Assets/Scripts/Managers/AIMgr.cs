@@ -45,13 +45,13 @@ public class AIMgr : MonoBehaviour
 
     public void GenerateField()
     {
-        LayerMask mask0 = LayerMask.GetMask("Terrain", "Outside");
+        LayerMask mask0 = LayerMask.GetMask("Terrain", "Outside1", "Outside2");
         nodes = CreateNodeField(mask0);
 
-        LayerMask mask1 = LayerMask.GetMask("Terrain", "Outside", "Lane2");
+        LayerMask mask1 = LayerMask.GetMask("Terrain", "Outside1", "Outside2", "Lane2");
         nodesLane1 = CreateNodeField(mask1);
 
-        LayerMask mask2 = LayerMask.GetMask("Terrain", "Outside", "Lane1");
+        LayerMask mask2 = LayerMask.GetMask("Terrain", "Outside1", "Outside2", "Lane1");
         nodesLane2 = CreateNodeField(mask2);
     }
     
@@ -126,10 +126,12 @@ public class AIMgr : MonoBehaviour
         {
             case "Zone2":
             case "Lane1":
+            case "Outside1":
                 nodesToUse = nodesLane1;
                 break;
             case "Zone1":
             case "Lane2":
+            case "Outside2":
                 nodesToUse = nodesLane2;
                 break;
             default:
@@ -325,7 +327,7 @@ public class AIMgr : MonoBehaviour
 
     private string GetPointZone(Vector3 v)
     {
-        LayerMask lm = LayerMask.GetMask("Lane1", "Lane2", "Zone1", "Zone2");
+        LayerMask lm = LayerMask.GetMask("Lane1", "Lane2", "Zone1", "Zone2", "Outside1", "Outside2");
         Ray r = new Ray(new Vector3(v.x, 1000, v.z), Vector3.down);
         RaycastHit hit;
         if(Physics.Raycast(r, out hit, Mathf.Infinity, lm))
