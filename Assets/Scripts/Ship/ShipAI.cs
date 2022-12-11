@@ -8,11 +8,6 @@ public class ShipAI : MonoBehaviour
 
     public float minMagnitude;
 
-    [SerializeField] private float minCollisionDist;
-    [SerializeField] private float maxCollisionDist;
-
-    [SerializeField] private float actionDist;
-
     public List<Vector3> desiredPositionList;
 
     // Potential field at final location
@@ -24,9 +19,19 @@ public class ShipAI : MonoBehaviour
     [SerializeField] private float avoidancePFConstant;
     [SerializeField] private float avoidancePFExponent;
 
+    // New AI Constants
+    [SerializeField] private float minTCPA; // The minimum TCPA for action to be taken
+    [SerializeField] private float minDCPA;
+    [SerializeField] private float maxDCPA;
+    [SerializeField] private float minBearingDelta; // The minimum bearing change to see if the ships will collide
+    [SerializeField] private float maxBearingDelta; // Used to determine if the ships will no longer collide
+
+    public Vector3 prevPos { get; private set; }
+
     private void Awake()
     {
         ship = gameObject.GetComponent<Ship>();
+        prevPos = gameObject.transform.position;
     }
 
     public void AddDesiredPosition(Vector3 pos)
@@ -88,41 +93,40 @@ public class ShipAI : MonoBehaviour
         {
             var otherShipPos = otherShip.transform.position;
 
-            // Calculate relative velocity
+            // Calculate relative position and velocity
+            var relPos = otherShipPos - yourShipPos;
+            var bearing = Mathf.Rad2Deg * Mathf.Atan2(relPos.z, relPos.x);
             var relVel = otherShip.physics.GetVelocity() - ship.physics.GetVelocity();
 
-            // If heading towards and if close enough, calculate minimum distance between two ships
-            if(Vector3.Dot(relVel, otherShipPos - yourShipPos) < 0 && Vector3.Magnitude(yourShipPos - otherShipPos) < actionDist)
+            var relDist = relPos.magnitude;
+            var relSpeed = relVel.magnitude;
+
+            // CPA
+            var angleBeta = Mathf.Acos(Vector3.Dot(relVel, -relPos) / (relSpeed * relDist));
+            float DCPA = relDist * Mathf.Sin(angleBeta);
+            float TCPA = relDist * Mathf.Cos(angleBeta) / relSpeed;
+
+            // CBDR
+            var prevRelPos = otherShip.ai.prevPos - prevPos;
+            var prevDist = prevRelPos.magnitude;
+            var prevBearing = Mathf.Rad2Deg * Mathf.Atan2(prevRelPos.z, prevRelPos.x);
+
+            var bearingDelta = Mathf.Abs(Mathf.DeltaAngle(prevBearing, bearing)) / dt;
+
+            if((TCPA > 0) && DCPA < maxDCPA)
             {
-                var a = 1.0f / relVel.x;
-                var b = -1.0f / relVel.z;
-                var c = (otherShipPos.z / relVel.z) - (otherShipPos.x / relVel.x);
-
-                var dist = Mathf.Abs(a * yourShipPos.x + b * yourShipPos.z + c) / Mathf.Sqrt(a * a + b * b);
-
-                // Record dist if close
-                if(dist < minCollisionDist && !riskOfCollisionList.Contains(otherShip))
+                if (DCPA < minDCPA && TCPA < minTCPA && !riskOfCollisionList.Contains(otherShip))
                 {
                     riskOfCollisionList.Add(otherShip);
                     riskTypeList.Add(CalcRiskType(otherShip));
                 }
 
-                if (dist < minCollisionDist && riskOfCollisionList.Contains(otherShip))
+                if (DCPA < minDCPA && TCPA < minTCPA && riskOfCollisionList.Contains(otherShip))
                 {
                     int i = riskOfCollisionList.IndexOf(otherShip);
                     riskTypeList[i] = riskTypeList[i] == RiskTypes.Overtaking || riskTypeList[i] == RiskTypes.Overtaken ? riskTypeList[i] : CalcRiskType(otherShip);
                 }
-
-                // Remove dist if far
-                if (dist > maxCollisionDist && riskOfCollisionList.Contains(otherShip))
-                {
-                    int i = riskOfCollisionList.IndexOf(otherShip);
-                    riskOfCollisionList.RemoveAt(i);
-                    riskTypeList.RemoveAt(i);
-                }
             }
-
-            // If moving away, remove it from the list, as they will never collide
             else
             {
                 if (riskOfCollisionList.Contains(otherShip))
@@ -170,6 +174,7 @@ public class ShipAI : MonoBehaviour
             }
         }
 
+        prevPos = gameObject.transform.position;
     }
 
     RiskTypes CalcRiskType(Ship otherShip)
@@ -184,11 +189,11 @@ public class ShipAI : MonoBehaviour
         {
             return RiskTypes.HeadOn;
         }
-        else if (Mathf.Abs(angDiff) < 10 && speedDiff > 0 && distDiff < 2 * actionDist / 3 && relAngle < 5)
+        else if (Mathf.Abs(angDiff) < 10 && speedDiff > 0 && distDiff < 4 * minDCPA / 3 && relAngle < 5)
         {
             return RiskTypes.Overtaking;
         }
-        else if (Mathf.Abs(angDiff) < 10 && speedDiff < 0 && distDiff < 2 * actionDist / 3 && relAngle < 5) 
+        else if (Mathf.Abs(angDiff) < 10 && speedDiff < 0 && distDiff < 4 * minDCPA / 3 && relAngle < 5) 
         {
             return RiskTypes.Overtaken;
         }

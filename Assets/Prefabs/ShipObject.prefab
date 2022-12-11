@@ -214,6 +214,11 @@ MonoBehaviour:
   avoidancePFList: []
   avoidancePFConstant: 75000
   avoidancePFExponent: -1.5
+  minTCPA: 20
+  minDCPA: 500
+  maxDCPA: 5000
+  minBearingDelta: 1
+  maxBearingDelta: 10
 --- !u!114 &1761140690531568912
 MonoBehaviour:
   m_ObjectHideFlags: 0
