@@ -87,33 +87,14 @@ public class ShipAI : MonoBehaviour
             }
         }
 
-        Vector3 yourShipPos = gameObject.transform.position;
 
         foreach(Ship otherShip in ShipMgr.instance.shipDict.Values)
         {
-            var otherShipPos = otherShip.transform.position;
 
-            // Calculate relative position and velocity
-            var relPos = otherShipPos - yourShipPos;
-            var bearing = Mathf.Rad2Deg * Mathf.Atan2(relPos.z, relPos.x);
-            var relVel = otherShip.physics.GetVelocity() - ship.physics.GetVelocity();
+            float DCPA = ShipMgr.instance.cpaDict[ship.shipID][otherShip.shipID].cpaDist;
+            float TCPA = ShipMgr.instance.cpaDict[ship.shipID][otherShip.shipID].CalcTCPA();
 
-            var relDist = relPos.magnitude;
-            var relSpeed = relVel.magnitude;
-
-            // CPA
-            var angleBeta = Mathf.Acos(Vector3.Dot(relVel, -relPos) / (relSpeed * relDist));
-            float DCPA = relDist * Mathf.Sin(angleBeta);
-            float TCPA = relDist * Mathf.Cos(angleBeta) / relSpeed;
-
-            // CBDR
-            var prevRelPos = otherShip.ai.prevPos - prevPos;
-            var prevDist = prevRelPos.magnitude;
-            var prevBearing = Mathf.Rad2Deg * Mathf.Atan2(prevRelPos.z, prevRelPos.x);
-
-            var bearingDelta = Mathf.Abs(Mathf.DeltaAngle(prevBearing, bearing)) / dt;
-
-            if((TCPA > 0) && DCPA < maxDCPA)
+            if ((TCPA > 0) && DCPA < maxDCPA)
             {
                 if (DCPA < minDCPA && TCPA < minTCPA && !riskOfCollisionList.Contains(otherShip))
                 {
