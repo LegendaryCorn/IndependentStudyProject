@@ -12,6 +12,8 @@ public class ShipMgr : MonoBehaviour
 
     public Dictionary<int, Dictionary<int, CPA>> cpaDict;
 
+    [SerializeField] private float updateSeconds;
+    [SerializeField] private float updateSecondsFluctuation;
 
     int shipIDSet = 0;
 
@@ -45,13 +47,13 @@ public class ShipMgr : MonoBehaviour
             newCpaDict[s1] = new Dictionary<int, CPA>();
             foreach (int s2 in shipDict.Keys)
             {
-                if(true)
+                if(cpaDict.ContainsKey(s1) && cpaDict[s1].ContainsKey(s2) && cpaDict[s1][s2].refreshTime > Time.realtimeSinceStartup)
                 {
-                    newCpaDict[s1][s2] = new CPA(shipDict[s1], shipDict[s2]);
+                    newCpaDict[s1][s2] = cpaDict[s1][s2];
                 }
                 else
                 {
-                    newCpaDict[s1][s2] = cpaDict[s1][s2];
+                    newCpaDict[s1][s2] = new CPA(shipDict[s1], shipDict[s2]);
                 }
             }
         }
@@ -75,13 +77,13 @@ public class ShipMgr : MonoBehaviour
     {
         public float cpaDist { get; private set; } // The closest distance between the two ships
         public float cpaTime { get; private set; } // The exact time that this will occur
+        public float refreshTime { get; private set; } // The time to refresh this
 
         public CPA(Ship yourShip, Ship otherShip)
         {
             // Get position variables as we use these a lot
             var yourShipPos = yourShip.transform.position;
             var otherShipPos = otherShip.transform.position;
-
 
             // Calculate relative position and velocity
             var relPos = otherShipPos - yourShipPos;
@@ -105,6 +107,7 @@ public class ShipMgr : MonoBehaviour
             // Put it in the variables
             cpaDist = DCPA;
             cpaTime = Time.realtimeSinceStartup + TCPA;
+            refreshTime = Time.realtimeSinceStartup + ShipMgr.instance.updateSeconds + Random.Range(-ShipMgr.instance.updateSecondsFluctuation, ShipMgr.instance.updateSecondsFluctuation);
         }
 
         public float CalcTCPA()

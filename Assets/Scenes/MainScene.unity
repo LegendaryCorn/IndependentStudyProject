@@ -867,6 +867,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   shipObject: {fileID: 3882385524392852243, guid: 4e9cdadb3651af34091f71f621c3fd98, type: 3}
+  updateSeconds: 15
+  updateSecondsFluctuation: 5
 --- !u!1001 &162241585
 PrefabInstance:
   m_ObjectHideFlags: 0
