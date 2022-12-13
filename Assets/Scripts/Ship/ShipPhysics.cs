@@ -82,7 +82,7 @@ public class ShipPhysics : MonoBehaviour
 
     public void SetDesiredHeading(float h)
     {
-        ship.physics.desiredHeading = (h < 0 ? 2 * Mathf.PI : 0) + h;
+        ship.physics.desiredHeading = (h < 0 ? 2 * Mathf.PI : 0) - (h > 2 * Mathf.PI ? 2 * Mathf.PI : 0) + h;
     }
     #endregion
 

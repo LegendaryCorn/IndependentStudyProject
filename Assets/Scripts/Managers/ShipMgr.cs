@@ -11,6 +11,7 @@ public class ShipMgr : MonoBehaviour
     public Dictionary<int, Ship> shipDict;
 
     public Dictionary<int, Dictionary<int, CPA>> cpaDict;
+    public Dictionary<int, Dictionary<int, CPA>> prevCpaDict;
 
     [SerializeField] private float updateSeconds;
     [SerializeField] private float updateSecondsFluctuation;
@@ -30,6 +31,7 @@ public class ShipMgr : MonoBehaviour
 
         shipDict = new Dictionary<int, Ship>();
         cpaDict = new Dictionary<int, Dictionary<int, CPA>>();
+        prevCpaDict = new Dictionary<int, Dictionary<int, CPA>>();
     }
 
     // Start is called before the first frame update
@@ -58,6 +60,7 @@ public class ShipMgr : MonoBehaviour
             }
         }
 
+        prevCpaDict = cpaDict;
         cpaDict = newCpaDict;
     }
 

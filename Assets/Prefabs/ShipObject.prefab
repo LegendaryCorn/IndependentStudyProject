@@ -150,7 +150,7 @@ Transform:
   m_GameObject: {fileID: 3882385524392852243}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.3, y: 0.3, z: 0.3}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 7283598454976311512}
@@ -190,8 +190,8 @@ MonoBehaviour:
   desiredHeading: 0
   acceleration: 5
   minSpeed: 0
-  maxSpeed: 25
-  angularVelocity: 0.2
+  maxSpeed: 5
+  angularVelocity: 0.1
 --- !u!114 &6364839510600185752
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -205,16 +205,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   minMagnitude: 10
-  minCollisionDist: 500
-  maxCollisionDist: 5000
-  actionDist: 1000
   desiredPositionList: []
   positionPFConstant: 1000
   positionPFExponent: -1
   avoidancePFList: []
   avoidancePFConstant: 75000
   avoidancePFExponent: -1.5
-  minTCPA: 20
+  minTCPA: 600
   minDCPA: 500
   maxDCPA: 5000
   minBearingDelta: 1
