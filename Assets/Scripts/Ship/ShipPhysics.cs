@@ -82,7 +82,22 @@ public class ShipPhysics : MonoBehaviour
 
     public void SetDesiredHeading(float h)
     {
-        ship.physics.desiredHeading = (h < 0 ? 2 * Mathf.PI : 0) - (h > 2 * Mathf.PI ? 2 * Mathf.PI : 0) + h;
+        desiredHeading = (h < 0 ? 2 * Mathf.PI : 0) - (h > 2 * Mathf.PI ? 2 * Mathf.PI : 0) + h;
+    }
+
+    public void SetScenarioShip(ScenarioShip s)
+    {
+        physicsData = new ShipPhysicsData()
+        {
+            Position = s.startPoint.transform.position,
+            speed = s.startSpeed,
+            heading = s.startHeading
+        };
+
+        minSpeed = s.minSpeed;
+        maxSpeed = s.maxSpeed;
+        acceleration = s.acceleration;
+        angularVelocity = s.angularVelocity;
     }
     #endregion
 

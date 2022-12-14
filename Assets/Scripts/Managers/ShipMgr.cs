@@ -16,7 +16,7 @@ public class ShipMgr : MonoBehaviour
     [SerializeField] private float updateSeconds;
     [SerializeField] private float updateSecondsFluctuation;
 
-    int shipIDSet = 0;
+    public int shipIDSet = 0;
 
     private void Awake()
     {
@@ -71,6 +71,22 @@ public class ShipMgr : MonoBehaviour
         newPlayerShip.shipTeam = teamID;
         newPlayerShip.transform.position = spawnPos;
         newPlayerShip.physics.SetPosition(spawnPos);
+        newPlayerShip.shipID = shipIDSet;
+        shipDict[shipIDSet] = newShip.GetComponent<Ship>();
+        shipIDSet++;
+    }
+
+    public void SpawnScenarioShip(ScenarioShip scenarioShip)
+    {
+        GameObject newShip = Instantiate(shipObject);
+        Ship newPlayerShip = newShip.GetComponent<Ship>();
+        newPlayerShip.shipTeam = 0;
+        newPlayerShip.transform.position = scenarioShip.startPoint.transform.position;
+        newPlayerShip.physics.SetScenarioShip(scenarioShip);
+        for(int i = 0; i < scenarioShip.waypoints.Count; i++)
+        {
+            newPlayerShip.ai.AddDesiredPosition(scenarioShip.waypoints[i].transform.position);
+        }
         newPlayerShip.shipID = shipIDSet;
         shipDict[shipIDSet] = newShip.GetComponent<Ship>();
         shipIDSet++;
