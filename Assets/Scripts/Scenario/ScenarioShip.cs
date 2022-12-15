@@ -5,8 +5,8 @@ using UnityEngine;
 public class ScenarioShip : MonoBehaviour
 {
     // Start positions
-    public GameObject startPoint;
-    public List<GameObject> waypoints;
+    public Vector3 startPoint;
+    public Vector3 endPoint;
     public float startSpeed;
     public float startHeading;
 

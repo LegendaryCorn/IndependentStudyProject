@@ -35,6 +35,8 @@ public class AIMgr : MonoBehaviour
         nodesLane2 = null;
         terrainMask = LayerMask.GetMask("Terrain");
         potentialFields = new List<PotentialField>();
+
+        GenerateField();
     }
 
 
@@ -344,6 +346,27 @@ public class AIMgr : MonoBehaviour
     private int TaxiCabDist(Node s, Node e)
     {
         return Mathf.Abs(s.coordX - e.coordX) + Mathf.Abs(s.coordY - e.coordY);
+    }
+
+    public List<Node> GetNodesInArea(string zone)
+    {
+        List<Node> nodesInArea = new List<Node>();
+
+        for(int i = 0; i < numNodesWidth; i++)
+        {
+            for(int j = 0; j < numNodesHeight; j++)
+            {
+                Node n = nodes[i, j];
+                var z = GetPointZone(n.position);
+                if (n.isValid && z == zone)
+                {
+                    nodesInArea.Add(n);   
+                }
+            }
+        }
+
+
+        return nodesInArea;
     }
 
     public struct Node

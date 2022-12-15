@@ -81,12 +81,9 @@ public class ShipMgr : MonoBehaviour
         GameObject newShip = Instantiate(shipObject);
         Ship newPlayerShip = newShip.GetComponent<Ship>();
         newPlayerShip.shipTeam = 0;
-        newPlayerShip.transform.position = scenarioShip.startPoint.transform.position;
+        newPlayerShip.transform.position = scenarioShip.startPoint;
         newPlayerShip.physics.SetScenarioShip(scenarioShip);
-        for(int i = 0; i < scenarioShip.waypoints.Count; i++)
-        {
-            newPlayerShip.ai.AddDesiredPosition(scenarioShip.waypoints[i].transform.position);
-        }
+        newPlayerShip.ai.AddDesiredPosition(scenarioShip.endPoint);
         newPlayerShip.shipID = shipIDSet;
         shipDict[shipIDSet] = newShip.GetComponent<Ship>();
         shipIDSet++;

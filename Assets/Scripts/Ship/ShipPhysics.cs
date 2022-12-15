@@ -89,7 +89,7 @@ public class ShipPhysics : MonoBehaviour
     {
         physicsData = new ShipPhysicsData()
         {
-            Position = s.startPoint.transform.position,
+            Position = s.startPoint,
             speed = s.startSpeed,
             heading = s.startHeading
         };
