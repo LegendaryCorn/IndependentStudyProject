@@ -8,6 +8,7 @@ public class CameraMgr : MonoBehaviour
     public static CameraMgr instance;
 
     public Camera cam;
+    public bool controlled = false;
 
     private Vector3 focusPoint;
     private float zoom;
@@ -35,13 +36,16 @@ public class CameraMgr : MonoBehaviour
     {
         zoom = initZoom;
         rot = initRot;
-        focusPoint = Vector3.zero;
+        focusPoint = 80 * Vector3.up;
     }
 
     // Update is called once per frame
     void Update()
     {
-        SetCamera();
+        if (!controlled)
+        {
+            SetCamera();
+        }
     }
 
     public void PanCamera(Vector3 adjustment)

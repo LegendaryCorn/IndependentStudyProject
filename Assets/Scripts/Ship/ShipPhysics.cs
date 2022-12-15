@@ -58,7 +58,27 @@ public class ShipPhysics : MonoBehaviour
         physicsData = newData;
     }
 
-    
+    public void DirectControl(float dt, Vector2 inputs)
+    {
+        ship.ai.ClearDesiredPositions();
+
+        var newHeading = physicsData.heading + inputs.x * angularVelocity * dt;
+        newHeading += (newHeading < 0 ? 2 * Mathf.PI : 0) - (newHeading > 2 * Mathf.PI ? 2 * Mathf.PI : 0);
+
+        var newSpeed = physicsData.speed + inputs.y * acceleration * dt;
+        newSpeed = Mathf.Clamp(newSpeed, minSpeed, maxSpeed);
+
+        physicsData = new ShipPhysicsData()
+        {
+            Position = physicsData.Position,
+            speed = newSpeed,
+            heading = newHeading
+        };
+
+        desiredSpeed = physicsData.speed;
+        desiredHeading = physicsData.heading;
+    }
+
     void Update()
     {
         DoPhysics(Time.deltaTime);

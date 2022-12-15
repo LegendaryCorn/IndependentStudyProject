@@ -5,6 +5,7 @@ using UnityEngine;
 public class PlayerControl : MonoBehaviour
 {
     private Player player;
+    private Ship followShip = null;
 
     [SerializeField] private float camMoveAdjustRate;
     [SerializeField] private float camRotAdjustRate;
@@ -19,31 +20,64 @@ public class PlayerControl : MonoBehaviour
 
     void Update()
     {
+        DoFollowShipInput();
         DoShipInputs(Time.deltaTime);
         DoCameraInputs(Time.deltaTime);
     }
 
     #region ShipInputs
 
+    bool prevFollowPress = false;
     bool prevSpawnPress = false;
     bool prevSelectPress = false;
     bool prevMovePress = false;
 
+    void DoFollowShipInput()
+    {
+        var currFollowPress = Input.GetAxisRaw("Follow") != 0;
+
+        if(currFollowPress && !prevFollowPress)
+        {
+            if(followShip == null && player.selection.selectedShipList.Count == 1)
+            {
+                followShip = player.selection.selectedShipList[0];
+                CameraMgr.instance.controlled = true;
+            }
+            else if(followShip != null)
+            {
+                followShip = null;
+                CameraMgr.instance.controlled = false;
+            }
+        }
+
+        prevFollowPress = currFollowPress;
+    }
+
     void DoShipInputs(float dt)
     {
-        var currSpawnPress = (Input.GetAxisRaw("Spawn") != 0);
-        var currSelectPress = (Input.GetAxisRaw("Selection") != 0);
-        var currMovePress = (Input.GetAxisRaw("Movement") != 0);
+        if (followShip == null)
+        {
+            var currSpawnPress = (Input.GetAxisRaw("Spawn") != 0);
+            var currSelectPress = (Input.GetAxisRaw("Selection") != 0);
+            var currMovePress = (Input.GetAxisRaw("Movement") != 0);
 
-        var lshift = (Input.GetAxisRaw("LShift") != 0);
+            var lshift = (Input.GetAxisRaw("LShift") != 0);
 
-        if (currSpawnPress && !prevSpawnPress) SpawnShip();
-        if (currSelectPress && !prevSelectPress) SelectShip(lshift);
-        if (currMovePress && !prevMovePress) MoveOrder(lshift);
+            if (currSpawnPress && !prevSpawnPress) SpawnShip();
+            if (currSelectPress && !prevSelectPress) SelectShip(lshift);
+            if (currMovePress && !prevMovePress) MoveOrder(lshift);
 
-        prevSpawnPress = currSpawnPress;
-        prevSelectPress = currSelectPress;
-        prevMovePress = currMovePress;
+            prevSpawnPress = currSpawnPress;
+            prevSelectPress = currSelectPress;
+            prevMovePress = currMovePress;
+        }
+        else
+        {
+            if (Input.GetAxisRaw("DirectControlHeading") != 0 || Input.GetAxisRaw("DirectControlSpeed") != 0)
+            {
+                followShip.physics.DirectControl(dt, new Vector2(Input.GetAxisRaw("DirectControlHeading"), Input.GetAxisRaw("DirectControlSpeed")));
+            }
+        }
     }
 
     void SpawnShip()
@@ -115,25 +149,25 @@ public class PlayerControl : MonoBehaviour
 
     void DoCameraInputs(float dt)
     {
-        if (Input.GetAxisRaw("CamVertical") != 0 || Input.GetAxisRaw("CamHorizontal") != 0)
+        if (followShip == null)
         {
-            if (Input.GetAxisRaw("CamRotate") != 0)
+            if (Input.GetAxisRaw("CamVertical") != 0 || Input.GetAxisRaw("CamHorizontal") != 0 || Input.GetAxisRaw("CamUpDown") != 0)
             {
-                Vector2 inp = new Vector2(Input.GetAxisRaw("CamVertical"), Input.GetAxisRaw("CamHorizontal"));
+                Vector3 inp = new Vector3(Input.GetAxisRaw("CamHorizontal"), Input.GetAxisRaw("CamUpDown"), Input.GetAxisRaw("CamVertical"));
+                Vector3 adjustment = dt * camMoveAdjustRate * (inp.normalized) * (Input.GetAxisRaw("PanFast") * 9 + 1);
+                CameraMgr.instance.PanCamera(adjustment);
+            }
+            if (Input.GetAxisRaw("CamRotateUpDown") != 0 || Input.GetAxisRaw("CamRotateLeftRight") != 0)
+            {
+                Vector2 inp = new Vector2(Input.GetAxisRaw("CamRotateUpDown"), Input.GetAxisRaw("CamRotateLeftRight"));
                 Vector2 adjustment = dt * camRotAdjustRate * (inp.normalized);
                 CameraMgr.instance.AdjustRotation(adjustment);
             }
-            else
-            {
-                Vector3 inp = new Vector3(Input.GetAxisRaw("CamHorizontal"), 0, Input.GetAxisRaw("CamVertical"));
-                Vector3 adjustment = dt * camMoveAdjustRate * (inp.normalized);
-                CameraMgr.instance.PanCamera(adjustment);
-            }
         }
-        if (Input.GetAxisRaw("Mouse ScrollWheel") != 0)
+        else
         {
-            float adjustment = -camZoomAdjustRate * Input.GetAxisRaw("Mouse ScrollWheel");
-            CameraMgr.instance.AdjustZoom(adjustment);
+            Camera.main.transform.position = followShip.transform.position + new Vector3(30 * Mathf.Sin(followShip.transform.eulerAngles.y * Mathf.Deg2Rad), 15, 30 * Mathf.Cos(followShip.transform.eulerAngles.y * Mathf.Deg2Rad));
+            Camera.main.transform.eulerAngles = followShip.transform.eulerAngles;
         }
     }
 }

@@ -295,7 +295,7 @@ MonoBehaviour:
   initRot: {x: 20, y: 0}
   minZoom: 50
   maxZoom: 20000
-  initZoom: 1000
+  initZoom: 50
 --- !u!1001 &55008821
 PrefabInstance:
   m_ObjectHideFlags: 0

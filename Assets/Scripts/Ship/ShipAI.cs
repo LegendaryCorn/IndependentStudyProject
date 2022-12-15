@@ -291,7 +291,10 @@ public class ShipAI : MonoBehaviour
         }
         else
         {
-            ship.physics.SetDesiredSpeed(0);
+            if (!CameraMgr.instance.controlled)
+            {
+                ship.physics.SetDesiredSpeed(0);
+            }
         }
     }
 
