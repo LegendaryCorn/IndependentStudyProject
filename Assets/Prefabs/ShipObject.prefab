@@ -209,11 +209,12 @@ MonoBehaviour:
   positionPFConstant: 1000
   positionPFExponent: -1
   avoidancePFList: []
-  avoidancePFConstant: 75000
+  avoidancePFMultiplierList: []
+  avoidancePFConstant: 30000
   avoidancePFExponent: -1.5
-  minTCPA: 600
-  minDCPA: 500
-  maxDCPA: 5000
+  minTCPA: 120
+  minDCPA: 200
+  maxDCPA: 1000
   minBearingDelta: 1
   maxBearingDelta: 10
 --- !u!114 &1761140690531568912

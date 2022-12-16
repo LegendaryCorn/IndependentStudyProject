@@ -292,6 +292,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cam: {fileID: 963194227}
+  controlled: 0
   initRot: {x: 20, y: 0}
   minZoom: 50
   maxZoom: 20000
@@ -867,8 +868,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   shipObject: {fileID: 3882385524392852243, guid: 4e9cdadb3651af34091f71f621c3fd98, type: 3}
-  updateSeconds: 15
-  updateSecondsFluctuation: 5
+  updateSeconds: 5
+  updateSecondsFluctuation: 2
   shipIDSet: 0
 --- !u!1001 &162241585
 PrefabInstance:

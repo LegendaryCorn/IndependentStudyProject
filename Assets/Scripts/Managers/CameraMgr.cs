@@ -52,6 +52,7 @@ public class CameraMgr : MonoBehaviour
     {
         Vector3 newAdj = new Vector3(adjustment.x * Mathf.Cos(Mathf.Deg2Rad * -rot.y) - adjustment.z * Mathf.Sin(Mathf.Deg2Rad * -rot.y), adjustment.y, adjustment.x * Mathf.Sin(Mathf.Deg2Rad * -rot.y) + adjustment.z * Mathf.Cos(Mathf.Deg2Rad * -rot.y));
         focusPoint += newAdj * Mathf.Sqrt(zoom);
+        focusPoint.y = Mathf.Max(5, focusPoint.y);
     }
 
     public void AdjustZoom(float adjustment)
