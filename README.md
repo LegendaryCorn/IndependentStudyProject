@@ -1,9 +1,9 @@
 # About
-This project uses Unity Version x. A download to this version can be found here.
+This project uses Unity Version 2021.3.12f1. A download to this version can be found [here](https://unity.com/releases/editor/qa/lts-releases).
 
-You can play the game on a web browser through this link here.
+You can play the game on a web browser through this link [here](https://www.cse.unr.edu/~korbend/AIProject/WebBuild/).
 
-I also created a video demonstration of this project that you can view here.
+I also created a video demonstration of this project that you can view [here](https://youtu.be/FqtpvfExR5M).
 
 # Controls
 In the bird's eye view mode:
@@ -25,3 +25,4 @@ In the ship control mode:
 * **Up/Down Arrow Keys** to speed up or slow down the ship
 * **Left/Right Arrow Keys** to turn the ship
 * **Q** to stop controlling the ship
+
